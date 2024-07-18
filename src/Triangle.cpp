@@ -15,10 +15,18 @@ Triangle::~Triangle()
 
 void Triangle::create()
 {
+    
+
     float vertices[] = {                                  
         m_V1x,  m_V1y, 0.0f, 1.0f, 0.0f, 1.0f,
         m_V2x,  m_V2y, 0.0f, 0.0f, 1.0f, 0.0f,
         m_V3x,  m_V3y, 0.0f, 0.0f, 0.0f, 1.0f,
+    };
+
+    float texCoords[] = {
+        0.0f, 0.0f,  // lower-left corner  
+        1.0f, 0.0f,  // lower-right corner
+        0.5f, 1.0f   // top-center corner
     };
 
     glGenBuffers(1, &m_VBO);

@@ -30,8 +30,7 @@ private:
 
 private:
 	GLFWwindow* m_Window{};
-	Rect rect{ 0.4f, 0.4f, 0.5f, 1.0f };
-	Triangle triang{ 0.7f, 0.3, 0.2f, -0.4f, -0.3f, 0.0f };
+	Rect rect{ 0.0f, 0.0f, 1.0f, 1.0f };
 	unsigned int m_ShaderProgram{};
 
 	static constexpr int s_WindowWidth{1920};

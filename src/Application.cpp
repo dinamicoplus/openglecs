@@ -15,8 +15,13 @@ Application::Application()
 
     ShaderProgram::create("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
 
+    // Texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     rect.create();
-    triang.create();
 }
 
 Application::~Application()
@@ -64,7 +69,6 @@ void Application::render()
     glClear(GL_COLOR_BUFFER_BIT);
 
     ShaderProgram::use();
-    triang.render();
     rect.render();
     
 
