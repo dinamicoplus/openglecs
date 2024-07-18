@@ -15,8 +15,8 @@ Application::Application()
 
     ShaderProgram::create("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
 
-    rect1.create();
-    rect2.create();
+    rect.create();
+    triang.create();
 }
 
 Application::~Application()
@@ -64,8 +64,9 @@ void Application::render()
     glClear(GL_COLOR_BUFFER_BIT);
 
     ShaderProgram::use();
-    rect1.render();
-    rect2.render();
+    triang.render();
+    rect.render();
+    
 
     glfwSwapBuffers(m_Window);
 }

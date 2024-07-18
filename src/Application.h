@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Rectangle.h"
+#include "Triangle.h"
+
 #include <GLFW/glfw3.h>
 
 class Application
@@ -28,8 +30,8 @@ private:
 
 private:
 	GLFWwindow* m_Window{};
-	Rect rect1{ 0.4f, 0.4f, 0.5f, 1.0f };
-	Rect rect2{ -0.4f, -0.4f, 1.f, 0.5f };
+	Rect rect{ 0.4f, 0.4f, 0.5f, 1.0f };
+	Triangle triang{ 0.7f, 0.3, 0.2f, -0.4f, -0.3f, 0.0f };
 	unsigned int m_ShaderProgram{};
 
 	static constexpr int s_WindowWidth{1920};
