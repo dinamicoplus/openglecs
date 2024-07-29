@@ -13,14 +13,16 @@ Application::Application()
 
     // Shaders
     m_Shader.create("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
-
-    // Texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
 
     m_Rect.create();
+
+    m_Shader.use();
+    // Set texture uniforms
+    m_Shader.setInt("texture1", 0);
+    m_Shader.setInt("texture2", 1);
+
+
 }
 
 Application::~Application()
@@ -52,15 +54,28 @@ void Application::updateInput()
         lock = 1;
     }
 
+    static float value = 0.0f;
+    if (glfwGetKey(m_Window, GLFW_KEY_Q))
+    {
+        value += 0.01f;
+    }
+
+    if (glfwGetKey(m_Window, GLFW_KEY_E))
+    {
+        value -= 0.01f;
+    }
+
+    m_Shader.setFloat("value", value);
+    spdlog::debug(value);
     glfwPollEvents();
 }
 
 void Application::update()
 {
     // update the uniform color
-    float timeValue = glfwGetTime();
+    /*float timeValue = glfwGetTime();
     float colorValue = sin(timeValue) / 2.0f + 0.5f;
-    m_Shader.setFloat3("ourColor", 1.0f - colorValue, colorValue, 0.5f + colorValue);
+    m_Shader.setFloat3("ourColor", 1.0f - colorValue, colorValue, 0.5f + colorValue);*/
 }
 
 void Application::render()
@@ -68,8 +83,9 @@ void Application::render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    m_Shader.use();
+    
     m_Rect.render();
+    m_Shader.use();
     
 
     glfwSwapBuffers(m_Window);
