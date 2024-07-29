@@ -93,7 +93,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\vs-dev-lib\glad\src\glad.c" />
-    <ClCompile Include="src\ShaderProgram.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Rectangle.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -101,7 +101,7 @@
     <ClCompile Include="src\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ShaderProgram.h" />
+    <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Rectangle.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\stb_image.h" />
