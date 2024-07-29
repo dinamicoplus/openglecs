@@ -22,6 +22,10 @@ Application::Application()
     m_Shader.setInt("texture1", 0);
     m_Shader.setInt("texture2", 1);
 
+    // Apply transformation to rectangle
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+    m_Shader.setMatrix4("transform", trans);
 
 }
 
@@ -66,16 +70,15 @@ void Application::updateInput()
     }
 
     m_Shader.setFloat("value", value);
-    spdlog::debug(value);
+    //spdlog::debug(value);
     glfwPollEvents();
 }
 
 void Application::update()
 {
-    // update the uniform color
-    /*float timeValue = glfwGetTime();
-    float colorValue = sin(timeValue) / 2.0f + 0.5f;
-    m_Shader.setFloat3("ourColor", 1.0f - colorValue, colorValue, 0.5f + colorValue);*/
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    m_Shader.setMatrix4("transform", trans);
 }
 
 void Application::render()
