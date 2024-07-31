@@ -1,3 +1,7 @@
 .vs/
 bin/
 intermediates/
+.sln
+.vcxproj
+.filters
+.user
