@@ -2,6 +2,7 @@
 
 #include "Rectangle.h"
 #include "Triangle.h"
+#include "Shader.h"
 
 #include <GLFW/glfw3.h>
 
@@ -30,8 +31,9 @@ private:
 
 private:
 	GLFWwindow* m_Window{};
-	Rect rect{ 0.0f, 0.0f, 1.0f, 1.0f };
-	unsigned int m_ShaderProgram{};
+	Shader m_Shader{};
+	Rect m_Rect{ 0.0f, 0.0f, 1.0f, 1.0f };
+	
 
 	static constexpr int s_WindowWidth{1920};
 	static constexpr int s_WindowHeight{1080};

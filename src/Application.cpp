@@ -1,7 +1,5 @@
 #include "Application.h"
 
-#include "ShaderProgram.h"
-
 #include <spdlog/spdlog.h>
 
 #include <iostream>
@@ -13,22 +11,27 @@ Application::Application()
     initGLFW();
     initGLAD();
 
-    ShaderProgram::create("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
+    // Shaders
+    m_Shader.create("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
+    
 
-    // Texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    m_Rect.create();
 
-    rect.create();
+    m_Shader.use();
+    // Set texture uniforms
+    m_Shader.setInt("texture1", 0);
+    m_Shader.setInt("texture2", 1);
+
+    // Apply transformation to rectangle
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+    m_Shader.setMatrix4("transform", trans);
+
 }
 
 Application::~Application()
 {
     spdlog::info("Closing application...");
-    
-    ShaderProgram::destroy();
 
     glfwTerminate();
 }
@@ -55,12 +58,27 @@ void Application::updateInput()
         lock = 1;
     }
 
+    static float value = 0.0f;
+    if (glfwGetKey(m_Window, GLFW_KEY_Q))
+    {
+        value += 0.01f;
+    }
+
+    if (glfwGetKey(m_Window, GLFW_KEY_E))
+    {
+        value -= 0.01f;
+    }
+
+    m_Shader.setFloat("value", value);
+    //spdlog::debug(value);
     glfwPollEvents();
 }
 
 void Application::update()
 {
-
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    m_Shader.setMatrix4("transform", trans);
 }
 
 void Application::render()
@@ -68,8 +86,9 @@ void Application::render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    ShaderProgram::use();
-    rect.render();
+    
+    m_Rect.render();
+    m_Shader.use();
     
 
     glfwSwapBuffers(m_Window);
@@ -140,63 +159,3 @@ void Application::framebufferSizeCallback(GLFWwindow* window, int width, int hei
     glViewport(0, 0, width, height);
 }
 
-void Application::compileShaders()
-{
-    // Vertex shader
-    const char* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    int  success;
-    char infoLog[512];
-
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        spdlog::error("Vertex Shader compilation failed: ", infoLog);
-    }
-
-    // Fragment shader
-    const char* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(0.5f, 1.0f, 0.0f, 1.0f);\n"
-        "}\n\0";
-
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        spdlog::error("Fragment Shader compilation failed : {}", infoLog);
-    }
-
-
-    m_ShaderProgram = glCreateProgram();
-    glAttachShader(m_ShaderProgram, vertexShader);
-    glAttachShader(m_ShaderProgram, fragmentShader);
-    glLinkProgram(m_ShaderProgram);
-
-    glGetProgramiv(m_ShaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(m_ShaderProgram, 512, NULL, infoLog);
-        spdlog::error("Shader program linking failed: {}", infoLog);
-    }
-
-    glUseProgram(m_ShaderProgram);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-}
