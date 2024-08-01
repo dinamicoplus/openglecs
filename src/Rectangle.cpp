@@ -64,6 +64,7 @@ void Rect::create()
 
     stbi_image_free(data);
 
+
     float vertices[] = {
         // positions                                               // color          // texture
         m_Width / 2.0f + m_PosX,  m_Height / 2.0f + m_PosY, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right

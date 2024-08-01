@@ -11,21 +11,36 @@ Application::Application()
     initGLFW();
     initGLAD();
 
+    // Enable Depth testing for Z-Buffer
+    glEnable(GL_DEPTH_TEST);
+
     // Shaders
     m_Shader.create("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
     
 
     m_Rect.create();
-
+    m_Cube.create();
     m_Shader.use();
     // Set texture uniforms
     m_Shader.setInt("texture1", 0);
     m_Shader.setInt("texture2", 1);
 
-    // Apply transformation to rectangle
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
-    m_Shader.setMatrix4("transform", trans);
+    // MODEL MATRIX
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    // VIEW MATRIX
+    glm::mat4 view = glm::mat4(1.0f);
+    // note that we're translating the scene in the reverse direction of where we want to move
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+    // PROJECTION MATRIX
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+    m_Shader.setMatrix4("model", model);
+    m_Shader.setMatrix4("view", view);
+    m_Shader.setMatrix4("projection", projection);
 
 }
 
@@ -76,18 +91,20 @@ void Application::updateInput()
 
 void Application::update()
 {
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    m_Shader.setMatrix4("transform", trans);
+    // MODEL MATRIX
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    m_Shader.setMatrix4("model", model);
 }
 
 void Application::render()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     
-    m_Rect.render();
+    //m_Rect.render();
+    m_Cube.render();
     m_Shader.use();
     
 
