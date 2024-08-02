@@ -121,6 +121,11 @@ void Cube::create()
 
 }
 
+void Cube::applyTransformation(const Shader& shader, glm::mat4 model)
+{
+    shader.setMatrix4("model", model);
+}
+
 void Cube::render()
 {
     glBindVertexArray(m_VAO);

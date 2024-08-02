@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Shader.h"
+
 #include <glad/glad.h>
 
 class Cube
@@ -9,6 +11,8 @@ public:
 	~Cube();
 
 	void create();
+	void update(const Shader& shader, glm::mat4 model);
+	void applyTransformation(const Shader& shader, glm::mat4 modelMatrix);
 	void render();
 
 private:

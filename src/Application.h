@@ -6,6 +6,7 @@
 #include "Shader.h"
 
 #include <GLFW/glfw3.h>
+#include <vector>
 
 class Application
 {
@@ -31,8 +32,14 @@ private:
 private:
 	GLFWwindow* m_Window{};
 	Shader m_Shader{};
-	Rect m_Rect{ 0.0f, 0.0f, 1.0f, 1.0f };
-	Cube m_Cube{};
+	std::vector<Cube> m_Cubes{10};
+
+	glm::vec3 m_CubePositions[10];
+
+	glm::mat4 m_Model;
+	glm::mat4 m_View;
+	glm::mat4 m_Projection;
+	float cameraSpeed = 1.0f;
 	
 
 	static constexpr int s_WindowWidth{1920};
