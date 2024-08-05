@@ -4,6 +4,7 @@
 #include "Triangle.h"
 #include "Cube.h"
 #include "Shader.h"
+#include "Camera.h"
 
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -27,11 +28,19 @@ private:
 	void initGLAD();
 
 	// Callbacks
-	static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+	void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+	void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
 	GLFWwindow* m_Window{};
 	Shader m_Shader{};
+	Camera m_Camera{};
+	float m_LastX;
+	float m_LastY;
+	bool m_FirstMouse;
+	float m_Dt{};
+	float m_LastFrame{};
 	std::vector<Cube> m_Cubes{10};
 
 	glm::vec3 m_CubePositions[10];

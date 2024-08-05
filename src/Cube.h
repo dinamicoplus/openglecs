@@ -11,7 +11,6 @@ public:
 	~Cube();
 
 	void create();
-	void update(const Shader& shader, glm::mat4 model);
 	void applyTransformation(const Shader& shader, glm::mat4 modelMatrix);
 	void render();
 

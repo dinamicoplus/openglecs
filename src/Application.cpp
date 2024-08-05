@@ -5,6 +5,8 @@
 #include <iostream>
 
 Application::Application()
+    :
+    m_Camera{glm::vec3(0.0f, 0.0f, 3.0f)}, m_FirstMouse{true}, m_Dt{0.0f}, m_LastFrame{0.0f}
 {
     spdlog::set_level(spdlog::level::debug);
     spdlog::info("Starting application...");
@@ -94,35 +96,33 @@ void Application::updateInput()
     {
         value -= 0.01f;
     }
-    /* camera test 
-    if (glfwGetKey(m_Window, GLFW_KEY_W))
-    {
-        m_View = glm::translate(m_View, glm::vec3(0.0f, cameraSpeed, 0.0f));
-    }
-
-    if (glfwGetKey(m_Window, GLFW_KEY_A))
-    {
-        m_View = glm::translate(m_View, glm::vec3(-cameraSpeed, 0.0f, 0.0f));
-    }
-
-    if (glfwGetKey(m_Window, GLFW_KEY_S))
-    {
-        m_View = glm::translate(m_View, glm::vec3(cameraSpeed, 0.0f, 0.0f));
-    }
-
-    if (glfwGetKey(m_Window, GLFW_KEY_D))
-    {
-        m_View = glm::translate(m_View, glm::vec3(0.0f, -cameraSpeed, 0.0f));
-    }
-    */
     m_Shader.setFloat("value", value);
+
+    if (glfwGetKey(m_Window, GLFW_KEY_W) == GLFW_PRESS)
+        m_Camera.ProcessKeyboard(FORWARD, m_Dt);
+    if (glfwGetKey(m_Window, GLFW_KEY_S) == GLFW_PRESS)
+        m_Camera.ProcessKeyboard(BACKWARD, m_Dt);
+    if (glfwGetKey(m_Window, GLFW_KEY_A) == GLFW_PRESS)
+        m_Camera.ProcessKeyboard(LEFT, m_Dt);
+    if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS)
+        m_Camera.ProcessKeyboard(RIGHT, m_Dt);
+
     //spdlog::debug(value);
     glfwPollEvents();
 }
 
 void Application::update()
 {
+    
+    m_Projection = glm::perspective(glm::radians(m_Camera.GetZoom()), static_cast<float>(s_WindowWidth) / s_WindowHeight, 0.1f, 100.0f);
+    m_Shader.setMatrix4("projection", m_Projection);
+    m_View = m_Camera.GetViewMatrix();
     m_Shader.setMatrix4("view", m_View);
+
+    float currentFrame = static_cast<float>(glfwGetTime());
+    m_Dt = currentFrame - m_LastFrame;
+    m_LastFrame = currentFrame;
+
 }
 
 void Application::render()
@@ -131,7 +131,7 @@ void Application::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Transformation and rendering has to be done in the same frame...
-    
+    // 
     // Move every cube
     for (unsigned int i = 0; i < 10; i++)
     {
@@ -180,6 +180,11 @@ void Application::initGLFW()
 
     // Set the window surface as main context
     glfwMakeContextCurrent(m_Window);
+
+    // tell GLFW to capture our mouse
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwSetWindowUserPointer(m_Window, this);
 }
 
 void Application::initGLAD()
@@ -197,7 +202,34 @@ void Application::initGLAD()
     glViewport(0, 0, s_WindowWidth, s_WindowHeight);
 
     // Set callback for window resize
-    glfwSetFramebufferSizeCallback(m_Window, framebufferSizeCallback);
+    glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) 
+        {
+            Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+            if (app)
+            {
+                app->framebufferSizeCallback(window, width, height);
+            }
+            
+        });
+
+        
+    glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xposIn, double yposIn)
+        {
+            Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+            if (app)
+            {
+                app->mouse_callback(window, xposIn, yposIn);
+            }
+        });
+
+    glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset)
+        {
+            Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+            if (app)
+            {
+                app->scroll_callback(window, xoffset, yoffset);
+            }
+        });
 
     // Show max vertex attrib number
     int numAttrib;
@@ -211,5 +243,31 @@ void Application::initGLAD()
 void Application::framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void Application::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (m_FirstMouse)
+    {
+        m_LastX = xpos;
+        m_LastY = ypos;
+        m_FirstMouse = false;
+    }
+
+    float xoffset = xpos - m_LastX;
+    float yoffset = m_LastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    m_LastX = xpos;
+    m_LastY = ypos;
+
+    m_Camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void Application::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    m_Camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
