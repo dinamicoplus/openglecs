@@ -10,6 +10,7 @@ Application::Application()
 {
     spdlog::set_level(spdlog::level::debug);
     spdlog::info("Starting application...");
+
     initGLFW();
     initGLAD();
 
@@ -18,27 +19,11 @@ Application::Application()
 
     // Shaders
     m_Shader.create("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
-    
-    m_CubePositions[0] = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_CubePositions[1] = glm::vec3(2.0f, 5.0f, -15.0f);
-    m_CubePositions[2] = glm::vec3(-1.5f, -2.2f, -2.5f);
-    m_CubePositions[3] = glm::vec3(-3.8f, -2.0f, -12.3f);
-    m_CubePositions[4] = glm::vec3(2.4f, -0.4f, -3.5f);
-    m_CubePositions[5] = glm::vec3(-1.7f, 3.0f, -7.5f);
-    m_CubePositions[6] = glm::vec3(1.3f, -2.0f, -2.5f);
-    m_CubePositions[7] = glm::vec3(1.5f, 2.0f, -2.5f);
-    m_CubePositions[8] = glm::vec3(1.5f, 0.2f, -1.5f);
-    m_CubePositions[9] = glm::vec3(-1.3f, 1.0f, -1.5f);
-
-    for (auto &item : m_Cubes)
-    {
-        item.create();
-    }
-
     m_Shader.use();
-    // Set texture uniforms
-    m_Shader.setInt("texture1", 0);
-    m_Shader.setInt("texture2", 1);
+    
+
+    // Create cube at (3,4,0) pos
+    m_Cube.create(m_Shader, glm::vec3(0.0f, 0.0f, 0.0f));
 
     // MODEL MATRIX
     m_Model = glm::mat4(1.0f);
@@ -107,6 +92,25 @@ void Application::updateInput()
     if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS)
         m_Camera.ProcessKeyboard(RIGHT, m_Dt);
 
+    if (glfwGetKey(m_Window, GLFW_KEY_UP) == GLFW_PRESS)
+        m_Cube.translate(m_Shader, glm::vec3(0.0f, 0.0f, m_Dt));
+    if (glfwGetKey(m_Window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        m_Cube.translate(m_Shader, glm::vec3(0.0f, 0.0f, -m_Dt));
+    if (glfwGetKey(m_Window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        m_Cube.translate(m_Shader, glm::vec3(-m_Dt, 0.0f, 0.0f));
+    if (glfwGetKey(m_Window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        m_Cube.translate(m_Shader, glm::vec3(m_Dt, 0.0f, 0.0f));
+
+    if (glfwGetKey(m_Window, GLFW_KEY_Z) == GLFW_PRESS)
+        m_Cube.rotate(m_Shader, m_Dt, glm::vec3(1.0f, 1.0f, 0.0f));
+    if (glfwGetKey(m_Window, GLFW_KEY_C) == GLFW_PRESS)
+        m_Cube.rotate(m_Shader, -m_Dt, glm::vec3(1.0f, 1.0f, 0.0f));
+
+    if (glfwGetKey(m_Window, GLFW_KEY_F) == GLFW_PRESS)
+        m_Cube.scale(m_Shader, glm::vec3(0.5f));
+    if (glfwGetKey(m_Window, GLFW_KEY_G) == GLFW_PRESS)
+        m_Cube.scale(m_Shader, glm::vec3(2.0f));
+
     //spdlog::debug(value);
     glfwPollEvents();
 }
@@ -119,10 +123,18 @@ void Application::update()
     m_View = m_Camera.GetViewMatrix();
     m_Shader.setMatrix4("view", m_View);
 
+    // Update DT
     float currentFrame = static_cast<float>(glfwGetTime());
     m_Dt = currentFrame - m_LastFrame;
     m_LastFrame = currentFrame;
 
+    spdlog::debug("Angles: ({}, {}, {}) ", 
+        m_Cube.getRotation().x,
+        m_Cube.getRotation().y, 
+        m_Cube.getRotation().z);
+
+    // fancy coloring
+    m_Cube.setColor(m_Shader, glm::vec4(1.0f, 0.0f, 0.5f, 1.0f));
 }
 
 void Application::render()
@@ -133,16 +145,7 @@ void Application::render()
     // Transformation and rendering has to be done in the same frame...
     // 
     // Move every cube
-    for (unsigned int i = 0; i < 10; i++)
-    {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_CubePositions[i]);
-        float angle = glfwGetTime() * 20.0f * i;
-        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        m_Cubes[i].applyTransformation(m_Shader, model);
-        m_Cubes[i].render();
-    }
-    m_Shader.use();
+    m_Cube.render(m_Shader);
     
 
     glfwSwapBuffers(m_Window);

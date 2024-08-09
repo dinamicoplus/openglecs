@@ -41,9 +41,8 @@ private:
 	bool m_FirstMouse;
 	float m_Dt{};
 	float m_LastFrame{};
-	std::vector<Cube> m_Cubes{10};
+	Cube m_Cube{};
 
-	glm::vec3 m_CubePositions[10];
 
 	glm::mat4 m_Model;
 	glm::mat4 m_View;

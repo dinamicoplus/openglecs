@@ -96,7 +96,7 @@ void Shader::create(const char* vertexPath, const char* fragmentPath)
 
 }
 
-void Shader::use()
+void Shader::use() const
 {
     glUseProgram(m_shaderID);
 }
@@ -119,6 +119,11 @@ void Shader::setFloat(const std::string& name, float value) const
 void Shader::setFloat3(const std::string& name, float value1, float value2, float value3) const
 {
     glUniform3f(glGetUniformLocation(m_shaderID, name.c_str()), value1, value2, value3);
+}
+
+void Shader::setFloat4(const std::string& name, float value1, float value2, float value3, float value4) const
+{
+    glUniform4f(glGetUniformLocation(m_shaderID, name.c_str()), value1, value2, value3, value4);
 }
 
 void Shader::setMatrix4(const std::string& name, const glm::mat4& value) const
