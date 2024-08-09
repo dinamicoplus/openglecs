@@ -21,6 +21,5 @@ private:
 	unsigned int m_EBO{};
 	unsigned int m_Texture1{};
 	unsigned int m_Texture2{};
-
 };
 

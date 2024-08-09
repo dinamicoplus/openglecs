@@ -41,16 +41,18 @@ private:
 	bool m_FirstMouse;
 	float m_Dt{};
 	float m_LastFrame{};
-	Cube m_Cube{};
+	Cube m_Cube1{};
+	Cube m_Cube2{};
 
 
 	glm::mat4 m_Model;
 	glm::mat4 m_View;
 	glm::mat4 m_Projection;
+	float m_AspectRatio;
 	float cameraSpeed = 1.0f;
 	
 
-	static constexpr int s_WindowWidth{1920};
-	static constexpr int s_WindowHeight{1080};
+	static constexpr int s_WindowWidth{1000};
+	static constexpr int s_WindowHeight{1000};
 };
 

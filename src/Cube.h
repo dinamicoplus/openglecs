@@ -11,7 +11,7 @@ public:
 	Cube();
 	~Cube();
 
-	void create(const Shader& shader, const glm::vec3& pos);
+	void create(const Shader& shader, const glm::vec3& pos, const std::string& texturePath = "");
 
 	void translate(const Shader& shader, const glm::vec3& deltaPos);
 	void rotate(const Shader& shader, float angle, const glm::vec3& axis);
@@ -35,9 +35,9 @@ private:
 	unsigned int m_VBO{};
 	unsigned int m_VAO{};
 
-	unsigned int m_Texture1{};
-	unsigned int m_Texture2{};
+	unsigned int m_Texture{};
 
 	glm::vec3 extractEulerAngles();
+	void setTexture(const Shader& shader, const std::string& path);
 };
 

@@ -23,7 +23,8 @@ Application::Application()
     
 
     // Create cube at (3,4,0) pos
-    m_Cube.create(m_Shader, glm::vec3(0.0f, 0.0f, 0.0f));
+    m_Cube1.create(m_Shader, glm::vec3(0.0f, 0.0f, 0.0f), "resources/wall.jpg");
+    m_Cube2.create(m_Shader, glm::vec3(2.0f, 0.0f, 0.0f), "resources/container.jpg");
 
     // MODEL MATRIX
     m_Model = glm::mat4(1.0f);
@@ -32,10 +33,11 @@ Application::Application()
     // note that we're translating the scene in the reverse direction of where we want to move
     m_View = glm::mat4(1.0f);
     m_View = glm::translate(m_View, glm::vec3(0.0f, 0.0f, -3.0f));
-
+    
     // PROJECTION MATRIX
+    m_AspectRatio = static_cast<float>(s_WindowWidth) / s_WindowHeight;
     m_Projection = glm::mat4(1.0f);
-    m_Projection = glm::perspective(glm::radians(45.0f), static_cast<float>(s_WindowWidth) / s_WindowHeight, 0.1f, 100.0f);
+    m_Projection = glm::perspective(glm::radians(45.0f), m_AspectRatio, 0.1f, 100.0f);
 ;
     m_Shader.setMatrix4("view", m_View);
     m_Shader.setMatrix4("projection", m_Projection);
@@ -55,11 +57,6 @@ void Application::updateInput()
     {
         close();
     }
-    // DEBUG
-    if (glfwGetKey(m_Window, GLFW_KEY_ENTER) == GLFW_PRESS)
-    {
-        spdlog::debug("Key Enter Pressed!");
-    }
 
     // Toggle on/off wireframe mode
     static bool lock = 0, wf_mode = 0;
@@ -71,18 +68,6 @@ void Application::updateInput()
         lock = 1;
     }
 
-    static float value = 0.0f;
-    if (glfwGetKey(m_Window, GLFW_KEY_Q))
-    {
-        value += 0.01f;
-    }
-
-    if (glfwGetKey(m_Window, GLFW_KEY_E))
-    {
-        value -= 0.01f;
-    }
-    m_Shader.setFloat("value", value);
-
     if (glfwGetKey(m_Window, GLFW_KEY_W) == GLFW_PRESS)
         m_Camera.ProcessKeyboard(FORWARD, m_Dt);
     if (glfwGetKey(m_Window, GLFW_KEY_S) == GLFW_PRESS)
@@ -92,6 +77,7 @@ void Application::updateInput()
     if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS)
         m_Camera.ProcessKeyboard(RIGHT, m_Dt);
 
+    /*
     if (glfwGetKey(m_Window, GLFW_KEY_UP) == GLFW_PRESS)
         m_Cube.translate(m_Shader, glm::vec3(0.0f, 0.0f, m_Dt));
     if (glfwGetKey(m_Window, GLFW_KEY_DOWN) == GLFW_PRESS)
@@ -107,18 +93,18 @@ void Application::updateInput()
         m_Cube.rotate(m_Shader, -m_Dt, glm::vec3(1.0f, 1.0f, 0.0f));
 
     if (glfwGetKey(m_Window, GLFW_KEY_F) == GLFW_PRESS)
-        m_Cube.scale(m_Shader, glm::vec3(0.5f));
+        m_Cube.scale(m_Shader, glm::vec3(1.0f - m_Dt));
     if (glfwGetKey(m_Window, GLFW_KEY_G) == GLFW_PRESS)
-        m_Cube.scale(m_Shader, glm::vec3(2.0f));
+        m_Cube.scale(m_Shader, glm::vec3(1.0f + m_Dt));*/
 
-    //spdlog::debug(value);
+    
     glfwPollEvents();
 }
 
 void Application::update()
 {
     
-    m_Projection = glm::perspective(glm::radians(m_Camera.GetZoom()), static_cast<float>(s_WindowWidth) / s_WindowHeight, 0.1f, 100.0f);
+    m_Projection = glm::perspective(glm::radians(m_Camera.GetZoom()), m_AspectRatio, 0.1f, 100.0f);
     m_Shader.setMatrix4("projection", m_Projection);
     m_View = m_Camera.GetViewMatrix();
     m_Shader.setMatrix4("view", m_View);
@@ -127,14 +113,6 @@ void Application::update()
     float currentFrame = static_cast<float>(glfwGetTime());
     m_Dt = currentFrame - m_LastFrame;
     m_LastFrame = currentFrame;
-
-    spdlog::debug("Angles: ({}, {}, {}) ", 
-        m_Cube.getRotation().x,
-        m_Cube.getRotation().y, 
-        m_Cube.getRotation().z);
-
-    // fancy coloring
-    m_Cube.setColor(m_Shader, glm::vec4(1.0f, 0.0f, 0.5f, 1.0f));
 }
 
 void Application::render()
@@ -142,11 +120,8 @@ void Application::render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Transformation and rendering has to be done in the same frame...
-    // 
-    // Move every cube
-    m_Cube.render(m_Shader);
-    
+    m_Cube1.render(m_Shader);
+    m_Cube2.render(m_Shader);
 
     glfwSwapBuffers(m_Window);
 }
@@ -246,6 +221,8 @@ void Application::initGLAD()
 void Application::framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    // Recalcular la matriz de proyección
+    m_AspectRatio = (float)width / (float)height;
 }
 
 void Application::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
