@@ -1,5 +1,7 @@
 #include "Cube.h"
 
+#include "TextureManager.h"
+
 #include "stb_image.h"
 
 #include <spdlog/spdlog.h>
@@ -14,7 +16,7 @@ Cube::~Cube()
     glDeleteBuffers(1, &m_VBO);
 }
 
-void Cube::create(const Shader& shader, const glm::vec3& pos, const std::string& texturePath)
+void Cube::create(const Shader& shader, const glm::vec3& pos)
 {
     float vertices[] = {
         -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
@@ -73,22 +75,32 @@ void Cube::create(const Shader& shader, const glm::vec3& pos, const std::string&
     // color attrib
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // texture attrib
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
     
     shader.setBool("hasTexture", false);
     shader.setFloat4("newColor", 1.0f, 1.0f, 1.0f, 1.0f);
-
-    if (texturePath != "")
-    {
-        setTexture(shader, texturePath);
-    }
+    shader.setInt("Texture", 0);
 
     m_Pos = pos;
     translate(shader, m_Pos);
     m_Rotation = glm::vec3(0.0f);
     m_Scale = glm::vec3(1.0f);
     m_Color = glm::vec4(1.0f);
+}
 
-
+void Cube::setTexture(const std::string& textureID)
+{
+    if (textureID == "")
+    {
+        m_Texture = 0;
+    }
+    else
+    {
+        m_Texture = TextureManager::get(textureID);
+    }
 }
 
 void Cube::translate(const Shader& shader, const glm::vec3& deltaPos)
@@ -125,7 +137,15 @@ void Cube::render(const Shader& shader)
     shader.use();
     shader.setMatrix4("model", m_ModelMatrix);
     glBindVertexArray(m_VAO);
-    if(m_Texture != 0) glBindTexture(GL_TEXTURE_2D, m_Texture);
+    if (m_Texture != 0)
+    {
+        shader.setBool("hasTexture", true);
+        glBindTexture(GL_TEXTURE_2D, m_Texture);
+    }
+    else
+    {
+        shader.setBool("hasTexture", false);
+    }
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
@@ -142,38 +162,3 @@ glm::vec3 Cube::extractEulerAngles()
     return eulerAngles;
 }
 
-void Cube::setTexture(const Shader& shader, const std::string& path)
-{
-    shader.setBool("hasTexture", true);
-    // Loading texture
-    glGenTextures(1, &m_Texture);
-    glBindTexture(GL_TEXTURE_2D, m_Texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_set_flip_vertically_on_load(true);
-
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        // texture attrib
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-    }
-    else
-    {
-        spdlog::error("Failed to load texture container");
-    }
-
-
-    // Set texture uniforms
-    shader.setInt("Texture", 0);
-
-    stbi_image_free(data);
-}

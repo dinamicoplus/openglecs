@@ -41,8 +41,7 @@ private:
 	bool m_FirstMouse;
 	float m_Dt{};
 	float m_LastFrame{};
-	Cube m_Cube1{};
-	Cube m_Cube2{};
+	std::vector<Cube> m_Cubes{1000};
 
 
 	glm::mat4 m_Model;

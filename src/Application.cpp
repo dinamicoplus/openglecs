@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include "TextureManager.h"
+
 #include <spdlog/spdlog.h>
 
 #include <iostream>
@@ -21,10 +23,34 @@ Application::Application()
     m_Shader.create("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
     m_Shader.use();
     
+    // Textures
+    TextureManager::create("container", "resources/container.jpg");
+    TextureManager::create("wall", "resources/wall.jpg");
 
-    // Create cube at (3,4,0) pos
-    m_Cube1.create(m_Shader, glm::vec3(0.0f, 0.0f, 0.0f), "resources/wall.jpg");
-    m_Cube2.create(m_Shader, glm::vec3(2.0f, 0.0f, 0.0f), "resources/container.jpg");
+    // Create awesome cube grid
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    for (auto& cube : m_Cubes)
+    {
+        cube.create(m_Shader, glm::vec3(x, y, z));
+        cube.setTexture("container");
+        
+        
+        x += 1.0f;
+        if (x == 10.0f) 
+        {
+            cube.setTexture("wall");
+            z += 1.0f;
+            x = 0.0f;
+        }
+        if (z == 10.0f)
+        {
+            cube.setTexture("");
+            y += 1.0f;
+            z = 0.0f;
+        }
+    }
 
     // MODEL MATRIX
     m_Model = glm::mat4(1.0f);
@@ -47,7 +73,8 @@ Application::Application()
 Application::~Application()
 {
     spdlog::info("Closing application...");
-
+    // Delete textures
+    TextureManager::freeAll();
     glfwTerminate();
 }
 
@@ -76,6 +103,8 @@ void Application::updateInput()
         m_Camera.ProcessKeyboard(LEFT, m_Dt);
     if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS)
         m_Camera.ProcessKeyboard(RIGHT, m_Dt);
+
+        
 
     /*
     if (glfwGetKey(m_Window, GLFW_KEY_UP) == GLFW_PRESS)
@@ -120,8 +149,10 @@ void Application::render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_Cube1.render(m_Shader);
-    m_Cube2.render(m_Shader);
+    for (auto& cube : m_Cubes)
+    {
+        cube.render(m_Shader);
+    }
 
     glfwSwapBuffers(m_Window);
 }
