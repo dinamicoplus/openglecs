@@ -7,3 +7,6 @@ intermediates/
 *.user
 out/
 *.exe
+build/
+.DS_Store
+.vscode/

@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.10)
 
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
@@ -27,17 +27,35 @@ target_include_directories(LearningOpenGL PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/libs/spdlog-1.14.1/include"
 )
 
+# Detect the build host’s platform/arch and link the correct GLFW library
+if (WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)        # 64-bit Windows
+    target_link_libraries(LearningOpenGL PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/libs/lib-vc2022/glfw3.lib")
 
-# Link import library for DLL
-target_link_libraries(LearningOpenGL PRIVATE 
-    "${CMAKE_CURRENT_SOURCE_DIR}/libs/lib-vc2022/glfw3.lib"
-)
+    # Copy DLL next to the executable after linking
+    add_custom_command(TARGET LearningOpenGL POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/libs/lib-vc2022/glfw3.dll"
+            $<TARGET_FILE_DIR:LearningOpenGL>)
 
-# Copy DLL to executable directory after build
-add_custom_command(TARGET LearningOpenGL POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/libs/lib-vc2022/glfw3.dll"
-        $<TARGET_FILE_DIR:LearningOpenGL>)
+
+elseif(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")   # macOS on M-series
+    # --- Link the dylib ---
+    target_link_libraries(LearningOpenGL PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/libs/lib-arm64/libglfw.3.dylib")
+
+    # --- Make sure the dylib is next to the executable so the loader finds it ---
+    add_custom_command(TARGET LearningOpenGL POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/libs/lib-arm64/libglfw.3.dylib"
+            $<TARGET_FILE_DIR:LearningOpenGL>)
+
+    # --- (Optional but recommended) Set an rpath so the app can also find it
+    #     via @loader_path at runtime without copying ---
+    set_target_properties(LearningOpenGL PROPERTIES
+        BUILD_RPATH "@loader_path"
+        INSTALL_RPATH "@loader_path")
+endif()
 
 # Copy entire shaders directory to executable directory after build
 add_custom_command(TARGET LearningOpenGL POST_BUILD

@@ -192,6 +192,8 @@ void Application::initGLFW()
     // Set core-profile mode
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+
 
     // Create GLFW window and set some properties
     m_Window = glfwCreateWindow(s_WindowWidth, s_WindowHeight, "OpenGL Testing", nullptr, nullptr);
@@ -269,9 +271,10 @@ void Application::initGLAD()
 
 void Application::framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
-    // Recalcular la matriz de proyección
-    m_AspectRatio = (float)width / (float)height;
+    int fbW, fbH;
+    glfwGetFramebufferSize(m_Window, &fbW, &fbH);
+    glViewport(0, 0, fbW, fbH);
+    m_AspectRatio = static_cast<float>(fbW) / fbH;   // keep your aspect ratio in sync
 }
 
 void Application::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
