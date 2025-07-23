@@ -62,7 +62,8 @@ void Shader::create(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-        spdlog::error("ERROR::SHADER::VERTEX::COMPILATION_FAILED");
+        spdlog::error("ERROR::::SHADER::VERTEX::COMPILATION_FAILED \n{}", infoLog);
+
     };
 
     // fragment Shader
@@ -74,7 +75,7 @@ void Shader::create(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-        spdlog::error("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED");
+        spdlog::error("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED \n{}", infoLog);
     };
 
     // shader Program
@@ -87,7 +88,7 @@ void Shader::create(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetProgramInfoLog(m_shaderID, 512, NULL, infoLog);
-        spdlog::error("ERROR::SHADER::PROGRAM::LINKING_FAILED");
+        spdlog::error("ERROR::SHADER::PROGRAM::LINKING_FAILED \n{}", infoLog);
     }
 
     // delete the shaders as they're linked into our program now and no longer necessary
@@ -129,4 +130,13 @@ void Shader::setFloat4(const std::string& name, float value1, float value2, floa
 void Shader::setMatrix4(const std::string& name, const glm::mat4& value) const
 {
     glUniformMatrix4fv(glGetUniformLocation(m_shaderID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void Shader::setVec3(const std::string& name, const glm::vec3& value) const
+{
+    glUniform3fv(glGetUniformLocation(m_shaderID, name.c_str()), 1, &value[0]);
+}
+void Shader::setVec3(const std::string& name, float x, float y, float z) const
+{
+    glUniform3f(glGetUniformLocation(m_shaderID, name.c_str()), x, y, z);
 }

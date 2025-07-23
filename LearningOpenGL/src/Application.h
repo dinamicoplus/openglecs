@@ -42,6 +42,10 @@ private:
 	float m_Dt{};
 	float m_LastFrame{};
 	std::vector<Cube> m_Cubes{1000};
+	float radius{ 5.0f*2.0f };
+	glm::vec3 lightPos{ glm::vec3(0.0f, 10.0f, 5.0f)*2.0f };
+	glm::vec3 lightColor{ glm::vec3(0.0f, 0.3f, 1.0f) };
+	Cube lightcube;
 
 
 	glm::mat4 m_Model;

@@ -8,7 +8,7 @@
 
 Application::Application()
     :
-    m_Camera{glm::vec3(0.0f, 0.0f, 3.0f)}, m_FirstMouse{true}, m_Dt{0.0f}, m_LastFrame{0.0f}
+    m_Camera{glm::vec3(10.0f, 10.0f, 60.0f)}, m_FirstMouse{true}, m_Dt{0.0f}, m_LastFrame{0.0f}
 {
     spdlog::set_level(spdlog::level::debug);
     spdlog::info("Starting application...");
@@ -27,10 +27,13 @@ Application::Application()
     TextureManager::create("container", "resources/container.jpg");
     TextureManager::create("wall", "resources/wall.jpg");
 
+    spdlog::info("Light position: x={0:.4f}, y={0:.4f}, z={0:.4f}", (float)lightPos.x, (float)lightPos.y, (float)lightPos.z);
+
     // Create awesome cube grid
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
+
     for (auto& cube : m_Cubes)
     {
         cube.create(m_Shader, glm::vec3(x, y, z));
@@ -51,6 +54,7 @@ Application::Application()
             z = 0.0f;
         }
     }
+    lightcube.create(m_Shader, lightPos);
 
     // MODEL MATRIX
     m_Model = glm::mat4(1.0f);
@@ -132,11 +136,24 @@ void Application::updateInput()
 
 void Application::update()
 {
-    
+
     m_Projection = glm::perspective(glm::radians(m_Camera.GetZoom()), m_AspectRatio, 0.1f, 100.0f);
     m_Shader.setMatrix4("projection", m_Projection);
     m_View = m_Camera.GetViewMatrix();
     m_Shader.setMatrix4("view", m_View);
+
+    //spdlog::info("Camera position: x={0:.4f}, y={0:.4f}, z={0:.4f}", (float)m_Camera.m_Position.x, (float)m_Camera.m_Position.y, (float)m_Camera.m_Position.z);
+    lightPos.x = sin(glfwGetTime()) * radius + 5.0f;
+    lightPos.y = cos(glfwGetTime()) * radius + 5.0f;
+
+    lightColor.r = sin(glfwGetTime());
+    lightColor.g = sin(10 / 11 * glfwGetTime() + 3.141592f / 3.0f);
+    lightColor.b = sin(5 / 6 * glfwGetTime() + 3.141592f * 2.0f / 3.0f);
+
+    lightcube.setPosition(lightPos);
+    m_Shader.setVec3("lightPos", lightPos);
+    m_Shader.setVec3("ambientColor", lightColor);
+    m_Shader.setVec3("viewPos", m_Camera.m_Position);
 
     // Update DT
     float currentFrame = static_cast<float>(glfwGetTime());
@@ -146,13 +163,14 @@ void Application::update()
 
 void Application::render()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(lightColor.r, lightColor.g, lightColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (auto& cube : m_Cubes)
     {
         cube.render(m_Shader);
     }
+    lightcube.render(m_Shader);
 
     glfwSwapBuffers(m_Window);
 }

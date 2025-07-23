@@ -13,6 +13,7 @@ public:
 
 	void create(const Shader& shader, const glm::vec3& pos);
 	void setTexture(const std::string& textureID);
+	void setPosition(const glm::vec3& newPos);
 
 	void translate(const Shader& shader, const glm::vec3& deltaPos);
 	void rotate(const Shader& shader, float angle, const glm::vec3& axis);
