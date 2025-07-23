@@ -5,3 +5,4 @@ intermediates/
 *.vcxproj
 *.filters
 *.user
+out/
