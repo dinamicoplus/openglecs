@@ -12,7 +12,7 @@ public:
 	~Cube();
 
 	void create(const Shader& shader, const glm::vec3& pos);
-	void setTexture(const std::string& textureID);
+	void setTexture(const unsigned int textureID);
 	void setPosition(const glm::vec3& newPos);
 
 	void translate(const Shader& shader, const glm::vec3& deltaPos);

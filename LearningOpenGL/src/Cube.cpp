@@ -96,16 +96,9 @@ void Cube::create(const Shader& shader, const glm::vec3& pos)
     m_Color = glm::vec4(1.0f);
 }
 
-void Cube::setTexture(const std::string& textureID)
+void Cube::setTexture(unsigned int textureID)
 {
-    if (textureID == "")
-    {
-        m_Texture = 0;
-    }
-    else
-    {
-        m_Texture = TextureManager::get(textureID);
-    }
+    m_Texture = TextureManager::get(textureID);
 }
 
 void Cube::setPosition(const glm::vec3& newPos)

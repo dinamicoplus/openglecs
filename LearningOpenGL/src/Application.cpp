@@ -24,8 +24,8 @@ Application::Application()
     m_Shader.use();
     
     // Textures
-    TextureManager::create("container", "resources/container.jpg");
-    TextureManager::create("wall", "resources/wall.jpg");
+    unsigned int containerTexture = TextureManager::create("resources/container.jpg");
+    unsigned int wallTexture = TextureManager::create("resources/wall.jpg");
 
     spdlog::info("Light position: x={0:.4f}, y={0:.4f}, z={0:.4f}", (float)lightPos.x, (float)lightPos.y, (float)lightPos.z);
 
@@ -37,19 +37,19 @@ Application::Application()
     for (auto& cube : m_Cubes)
     {
         cube.create(m_Shader, glm::vec3(x, y, z));
-        cube.setTexture("container");
+        cube.setTexture(containerTexture);
         
         
         x += 1.0f;
         if (x == 10.0f) 
         {
-            cube.setTexture("wall");
+            cube.setTexture(wallTexture);
             z += 1.0f;
             x = 0.0f;
         }
         if (z == 10.0f)
         {
-            cube.setTexture("");
+            cube.setTexture(0);
             y += 1.0f;
             z = 0.0f;
         }

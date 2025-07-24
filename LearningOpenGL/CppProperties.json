@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "name": "x64-Debug",
+      "includePath": [
+        "${workspaceRoot}/**",
+        "${workspaceRoot}/build/**",
+        "${env.INCLUDE}"
+      ],
+      "defines": [
+        "WIN32",
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "intelliSenseMode": "windows-msvc-x64",
+      "compileCommands": "${workspaceRoot}/build/compile_commands.json",
+      "inheritEnvironments": [
+        "msvc_x64"
+      ]
+    }
+  ],
+  "version": 4
+}
