@@ -1,7 +1,5 @@
 #include "Application.h"
 
-#include "TextureManager.h"
-
 #include <spdlog/spdlog.h>
 
 #include <iostream>
@@ -19,6 +17,63 @@ Application::Application()
     // Enable Depth testing for Z-Buffer
     glEnable(GL_DEPTH_TEST);
 
+    float vertices[] = {
+        //POSITION             //COLOR             //TEXTCOORDS  //NORMALS
+        -0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,   0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,   0.0f,  0.0f, -1.0f,
+
+        -0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,   0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,  0.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,   0.0f,  0.0f,  1.0f,
+
+        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,   1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   1.0f,  0.0f,  0.0f,
+
+        -0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,   0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+
+        -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,  1.0f,  0.0f
+    };
+
+
+    scene.RegisterComponentType<TexturedModelComponent>();
+    EntityID newEnt = scene.NewEntity();
+    TexturedModelComponent* model = scene.AssignComponent<TexturedModelComponent>(newEnt);
+    ModelManager::initModel(*model);
+	ModelManager::initModelIntoGPU(*model);
+    ModelManager::loadDataIntoModel(*model, vertices, sizeof(vertices)/sizeof(float));
+	ModelManager::loadModelIntoGPU(*model, false); // Load data into GPU and remove from memory
+    
+    //spdlog::info("TexturedModelComponent ID: {}", scene.GetComponentId<TexturedModelComponent>());
+    // En el inspection *(TexturedModelComponent*)scene.m_ComponentPools[0]->get(0)
+
     // Shaders
     m_Shader.create("shaders/vertex.glsl", "shaders/fragment.glsl");
     m_Shader.use();
@@ -27,6 +82,8 @@ Application::Application()
     unsigned int containerTexture = TextureManager::create("resources/container.jpg");
     unsigned int wallTexture = TextureManager::create("resources/wall.jpg");
 
+    model->m_TextureID = TextureManager::get(containerTexture);
+
     spdlog::info("Light position: x={0:.4f}, y={0:.4f}, z={0:.4f}", (float)lightPos.x, (float)lightPos.y, (float)lightPos.z);
 
     // Create awesome cube grid
@@ -34,26 +91,26 @@ Application::Application()
     float y = 0.0f;
     float z = 0.0f;
 
-    for (auto& cube : m_Cubes)
-    {
-        cube.create(m_Shader, glm::vec3(x, y, z));
-        cube.setTexture(containerTexture);
-        
-        
-        x += 1.0f;
-        if (x == 10.0f) 
-        {
-            cube.setTexture(wallTexture);
-            z += 1.0f;
-            x = 0.0f;
-        }
-        if (z == 10.0f)
-        {
-            cube.setTexture(0);
-            y += 1.0f;
-            z = 0.0f;
-        }
-    }
+  //  for (auto& cube : m_Cubes)
+  //  {
+  //      cube.create(m_Shader, glm::vec3(x, y, z));
+  //      cube.setTexture(containerTexture);
+  //      
+  //      
+  //      x += 1.0f;
+  //      if (x == 10.0f) 
+  //      {
+  //          cube.setTexture(wallTexture);
+  //          z += 1.0f;
+  //          x = 0.0f;
+  //      }
+  //      if (z == 10.0f)
+  //      {
+  //          cube.setTexture(0);
+  //          y += 1.0f;
+  //          z = 0.0f;
+  //      }
+  //  }
     lightcube.create(m_Shader, lightPos);
 
     // MODEL MATRIX
@@ -166,10 +223,16 @@ void Application::render()
     glClearColor(lightColor.r, lightColor.g, lightColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for (auto& cube : m_Cubes)
+    ComponentArray<TexturedModelComponent>* TMC = scene.GetComponentArray<TexturedModelComponent>();
+    for (auto& model : TMC->GetComponents())
     {
-        cube.render(m_Shader);
-    }
+		RenderSystem::render(&model, m_Shader);
+	}
+
+    //for (auto& cube : m_Cubes)
+    //{
+    //    cube.render(m_Shader);
+    //}
     lightcube.render(m_Shader);
 
     glfwSwapBuffers(m_Window);
