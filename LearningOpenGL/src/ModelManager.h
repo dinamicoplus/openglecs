@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
-#include <spdlog/spdlog.h>
+ #include <spdlog/spdlog.h>
 
 class ModelManager
 {
@@ -107,23 +107,83 @@ class ModelManager
     
         // Vector para acumular normales por vértice
         std::vector<glm::vec3> accumulatedNormals;
+		unsigned int coordinateCount = 0;
+		unsigned int normalCount = 0;
+		unsigned int textureCoordinateCount = 0;
 
         char buffer[256];
         while (fgets(buffer, sizeof(buffer), file)) {
-            if (buffer[0] == 'v' && buffer[1] == ' ') {
-                // Parsear posición del vértice
-                Vertex vertex;
-                sscanf(buffer, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
-                vertex.r = vertex.g = vertex.b = 1.0f; // Color blanco por defecto
-                vertex.u = vertex.v = vertex.s = vertex.t = vertex.w = 0.0f; // Coords textura por defecto
-                vertices.push_back(vertex);
-            
-                // Inicializar vector de normales acumuladas
-                accumulatedNormals.push_back(glm::vec3(0.0f));
-            } else if (buffer[0] == 'f') {
-                // Parsear índices de la cara
+			if (buffer[0] == 'v') {
+				if (buffer[1] == ' ') {
+					// Parsear posición del vértice
+					Vertex vertex;
+					sscanf(buffer, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
+					vertex.r = vertex.g = vertex.b = 1.0f; // Color blanco por defecto
+					vertex.u = vertex.v = vertex.s = vertex.t = vertex.w = 0.0f; // Coords textura por defecto
+					vertices.push_back(vertex);
+					coordinateCount++;
+
+					// Inicializar vector de normales acumuladas
+					accumulatedNormals.push_back(glm::vec3(0.0f));
+				}
+				else if (buffer[1] == 'n') {
+					// Parsear normal del vértice
+					if (normalCount > coordinateCount) {
+						spdlog::error("Error: More normals than vertices in file: {}", filename);
+						fclose(file);
+						return;
+					}
+					glm::vec3 normal;
+					sscanf(buffer, "vn %f %f %f", &normal.x, &normal.y, &normal.z);
+					vertices[normalCount].s = normal.x; // Asignar normal al vértice
+					vertices[normalCount].t = normal.y;
+					vertices[normalCount].w = normal.z;
+					normalCount++;
+				}
+				else if (buffer[1] == 't') {
+					// Parsear coordenadas de textura
+					if (textureCoordinateCount > coordinateCount) {
+						spdlog::error("Error: More texture coordinates than vertices in file: {}", filename);
+						fclose(file);
+						return;
+					}
+					float u, v;
+					sscanf(buffer, "vt %f %f", &u, &v);
+					vertices[textureCoordinateCount].u = u; // Asignar coordenadas de textura al vértice
+					vertices[textureCoordinateCount].v = v;
+					textureCoordinateCount++;
+				}
+
+			}
+				
+			
+			else if (buffer[0] == 'f') {
+                // Parsear índices de la cara - soportar múltiples formatos OBJ
                 uint32_t idx1, idx2, idx3;
-                sscanf(buffer, "f %u %u %u", &idx1, &idx2, &idx3);
+                uint32_t tex1, tex2, tex3;  // índices de textura (no usados pero necesarios para parsing)
+                uint32_t norm1, norm2, norm3; // índices de normales (no usados pero necesarios para parsing)
+                
+                // Detectar el formato de la línea 'f'
+                if (strchr(buffer, '/') == nullptr) {
+                    // Formato: f v1 v2 v3
+                    sscanf(buffer, "f %u %u %u", &idx1, &idx2, &idx3);
+                } else {
+                    // Contar las barras para determinar el formato
+                    int slashCount = 0;
+                    for (char* p = buffer; *p; p++) {
+                        if (*p == '/') slashCount++;
+                    }
+                    
+                    if (slashCount == 3) {
+                        // Formato: f v1/vt1 v2/vt2 v3/vt3
+                        sscanf(buffer, "f %u/%u %u/%u %u/%u", &idx1, &tex1, &idx2, &tex2, &idx3, &tex3);
+                    } else if (slashCount == 6) {
+                        // Formato: f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
+                        sscanf(buffer, "f %u/%u/%u %u/%u/%u %u/%u/%u", 
+                               &idx1, &tex1, &norm1, &idx2, &tex2, &norm2, &idx3, &tex3, &norm3);
+                    }
+                }
+                
                 indices.push_back(idx1 - 1); // Los índices OBJ son base 1
                 indices.push_back(idx2 - 1);
                 indices.push_back(idx3 - 1);

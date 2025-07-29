@@ -77,8 +77,8 @@ Application::Application()
     ModelManager::initModel(*model);
 	ModelManager::initModelIntoGPU(*model);
 	//ModelManager::loadDataIntoModel(*model, vertices, indices);
-	ModelManager::readOBJfile(*model, "resources/armadillo.obj");
-    model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(0.1f,0.1f,0.1f));
+	ModelManager::readOBJfile(*model, "resources/bs_rest.obj");
+    //model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(0.1f,0.1f,0.1f));
 	ModelManager::loadModelIntoGPU(*model, false); // Load data into GPU and remove from memory
     
     //spdlog::info("TexturedModelComponent ID: {}", scene.GetComponentId<TexturedModelComponent>());
@@ -89,8 +89,8 @@ Application::Application()
     m_Shader.use();
     
     // Textures
-    unsigned int containerTexture = TextureManager::create("resources/container.jpg");
-    unsigned int wallTexture = TextureManager::create("resources/wall.jpg");
+    unsigned int containerTexture = TextureManager::create("resources/diffuse.png");
+    //unsigned int wallTexture = TextureManager::create("resources/wall.jpg");
 
     model->m_TextureID = TextureManager::get(containerTexture);
 
