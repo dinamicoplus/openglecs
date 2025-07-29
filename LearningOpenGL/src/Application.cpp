@@ -76,7 +76,9 @@ Application::Application()
     TexturedModelComponent* model = scene.AssignComponent<TexturedModelComponent>(newEnt);
     ModelManager::initModel(*model);
 	ModelManager::initModelIntoGPU(*model);
-	ModelManager::loadDataIntoModel(*model, vertices, indices);
+	//ModelManager::loadDataIntoModel(*model, vertices, indices);
+	ModelManager::readOBJfile(*model, "resources/armadillo.obj");
+    model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(0.1f,0.1f,0.1f));
 	ModelManager::loadModelIntoGPU(*model, false); // Load data into GPU and remove from memory
     
     //spdlog::info("TexturedModelComponent ID: {}", scene.GetComponentId<TexturedModelComponent>());

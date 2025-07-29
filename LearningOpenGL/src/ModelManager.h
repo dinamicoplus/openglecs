@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
 class ModelManager
 {
@@ -89,6 +90,84 @@ class ModelManager
 			vertexVector.push_back(vertex);
 		}
 		return vertexVector;
+	}
+
+    // Reemplaza 'String' por 'std::string' en la declaración del método
+    static void readOBJfile(TexturedModelComponent& modelComponent, const char* filename)
+	{
+		FILE* file = fopen(filename, "r");
+		if (!file) {
+            // Reemplaza la línea problemática por esta:
+            spdlog::error("Failed to open file: {}", filename);
+			return;
+		}
+
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+    
+        // Vector para acumular normales por vértice
+        std::vector<glm::vec3> accumulatedNormals;
+
+        char buffer[256];
+        while (fgets(buffer, sizeof(buffer), file)) {
+            if (buffer[0] == 'v' && buffer[1] == ' ') {
+                // Parsear posición del vértice
+                Vertex vertex;
+                sscanf(buffer, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
+                vertex.r = vertex.g = vertex.b = 1.0f; // Color blanco por defecto
+                vertex.u = vertex.v = vertex.s = vertex.t = vertex.w = 0.0f; // Coords textura por defecto
+                vertices.push_back(vertex);
+            
+                // Inicializar vector de normales acumuladas
+                accumulatedNormals.push_back(glm::vec3(0.0f));
+            } else if (buffer[0] == 'f') {
+                // Parsear índices de la cara
+                uint32_t idx1, idx2, idx3;
+                sscanf(buffer, "f %u %u %u", &idx1, &idx2, &idx3);
+                indices.push_back(idx1 - 1); // Los índices OBJ son base 1
+                indices.push_back(idx2 - 1);
+                indices.push_back(idx3 - 1);
+            }
+
+        }
+
+        // Calcular normales por cara
+        for (size_t i = 0; i < indices.size(); i += 3) {
+            // Obtener los índices del triángulo
+            uint32_t idx1 = indices[i];
+            uint32_t idx2 = indices[i + 1];
+            uint32_t idx3 = indices[i + 2];
+            
+            // Obtener las posiciones de los vértices
+            glm::vec3 v1(vertices[idx1].x, vertices[idx1].y, vertices[idx1].z);
+            glm::vec3 v2(vertices[idx2].x, vertices[idx2].y, vertices[idx2].z);
+            glm::vec3 v3(vertices[idx3].x, vertices[idx3].y, vertices[idx3].z);
+            
+            // Calcular vectores del triángulo
+            glm::vec3 edge1 = v2 - v1;
+            glm::vec3 edge2 = v3 - v1;
+            glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
+            
+            // Acumular (no sobrescribir) las normales
+            accumulatedNormals[idx1] += faceNormal;
+            accumulatedNormals[idx2] += faceNormal;
+            accumulatedNormals[idx3] += faceNormal;
+        }
+
+        // Normalizar las normales acumuladas
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            glm::vec3 avgNormal = glm::normalize(accumulatedNormals[i]);
+            vertices[i].s = avgNormal.x;
+            vertices[i].t = avgNormal.y;
+            vertices[i].w = avgNormal.z;
+        }
+
+        fclose(file);
+
+		modelComponent.m_Vertices = std::move(vertices);
+		modelComponent.m_Indices = std::move(indices);
+		modelComponent.m_VertexCount = modelComponent.m_Vertices.size();
+		modelComponent.m_IndexCount = modelComponent.m_Indices.size();
 	}
 
 };
