@@ -17,11 +17,13 @@ class ModelManager
 	static void initModelIntoGPU(TexturedModelComponent& modelComponent) {
 		glGenVertexArrays(1, &modelComponent.m_VAO);
 		glGenBuffers(1, &modelComponent.m_VBO);
+		glGenBuffers(1, &modelComponent.m_EBO); // <-- Agregar EBO
 	}
 
 	static void deleteModelFromGPU(TexturedModelComponent& modelComponent) {
 		glDeleteVertexArrays(1, &modelComponent.m_VAO);
 		glDeleteBuffers(1, &modelComponent.m_VBO);
+		glDeleteBuffers(1, &modelComponent.m_EBO); // <-- Eliminar EBO
 	}
 
 	static void loadModelIntoGPU(TexturedModelComponent& modelComponent, bool removeFromMem = false) {
@@ -32,36 +34,61 @@ class ModelManager
 			modelComponent.m_Vertices.data(), 
 			GL_STATIC_DRAW);
 
-		// pos attrib
+		// Cargar índices
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelComponent.m_EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+			modelComponent.m_Indices.size() * sizeof(uint32_t),
+			modelComponent.m_Indices.data(),
+			GL_STATIC_DRAW);
+
+		// Configurar atributos (igual que antes)
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
-		// color attrib
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(1);
-
-		// texture attrib
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
 		glEnableVertexAttribArray(2);
-
-		// normal attribute
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
 		glEnableVertexAttribArray(3);
 
-		if (removeFromMem)
-		{
-			modelComponent.m_Vertices.clear(); // Clear the vertices from memory
-			modelComponent.m_Vertices.shrink_to_fit(); // Optional: shrink the vector to free memory
+		if (removeFromMem) {
+			modelComponent.m_Vertices.clear();
+			modelComponent.m_Vertices.shrink_to_fit();
+			modelComponent.m_Indices.clear();
+			modelComponent.m_Indices.shrink_to_fit();
 		}
 	}
 
-	static void loadDataIntoModel(TexturedModelComponent& modelComponent, const float* vertices, size_t count)
+	static void loadDataIntoModel(TexturedModelComponent& modelComponent, 
+		std::vector<Vertex> vertices,
+		std::vector<uint32_t> indices = std::vector<uint32_t>(0)
+	)
 	{
-		size_t vertexCount = count / 11;
+		modelComponent.m_Vertices = std::move(vertices);
+		modelComponent.m_Indices = std::move(indices);
+		modelComponent.m_VertexCount = modelComponent.m_Vertices.size();
+		modelComponent.m_IndexCount = modelComponent.m_Indices.size();
+	}
 
-		std::vector<Vertex> vertexVector(vertexCount);
-		std::memcpy(vertexVector.data(), vertices, vertexCount * sizeof(Vertex));
-
-		modelComponent.m_Vertices = std::move(vertexVector); // assuming this exists
+	static std::vector<Vertex> floatArrayToVector(float *vertices, size_t size)
+	{
+		std::vector<Vertex> vertexVector;
+		for (size_t i = 0; i < size; i += 11) {
+			Vertex vertex;
+			vertex.x = vertices[i];
+			vertex.y = vertices[i + 1];
+			vertex.z = vertices[i + 2];
+			vertex.r = vertices[i + 3];
+			vertex.g = vertices[i + 4];
+			vertex.b = vertices[i + 5];
+			vertex.u = vertices[i + 6];
+			vertex.v = vertices[i + 7];
+			vertex.s = vertices[i + 8];
+			vertex.t = vertices[i + 9];
+			vertex.w = vertices[i + 10];
+			vertexVector.push_back(vertex);
+		}
+		return vertexVector;
 	}
 
 };

@@ -62,13 +62,14 @@ Application::Application()
         -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,  1.0f,  0.0f
     };
 
+	std::vector<Vertex> cubeVector = ModelManager::floatArrayToVector(vertices, sizeof(vertices) / sizeof(float));
 
     scene.RegisterComponentType<TexturedModelComponent>();
     EntityID newEnt = scene.NewEntity();
     TexturedModelComponent* model = scene.AssignComponent<TexturedModelComponent>(newEnt);
     ModelManager::initModel(*model);
 	ModelManager::initModelIntoGPU(*model);
-    ModelManager::loadDataIntoModel(*model, vertices, sizeof(vertices)/sizeof(float));
+	ModelManager::loadDataIntoModel(*model, cubeVector);
 	ModelManager::loadModelIntoGPU(*model, false); // Load data into GPU and remove from memory
     
     //spdlog::info("TexturedModelComponent ID: {}", scene.GetComponentId<TexturedModelComponent>());
@@ -223,11 +224,15 @@ void Application::render()
     glClearColor(lightColor.r, lightColor.g, lightColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ComponentArray<TexturedModelComponent>* TMC = scene.GetComponentArray<TexturedModelComponent>();
-    for (auto& model : TMC->GetComponents())
+    // Cachear el ComponentArray una sola vez
+    static ComponentArray<TexturedModelComponent>* TMC = scene.GetComponentArray<TexturedModelComponent>();
+    
+    // Acceso directo a los componentes sin función calls adicionales
+    const auto& models = TMC->GetComponents();
+    for (const auto& model : models)
     {
-		RenderSystem::render(&model, m_Shader);
-	}
+        RenderSystem::render(&model, m_Shader);
+    }
 
     //for (auto& cube : m_Cubes)
     //{

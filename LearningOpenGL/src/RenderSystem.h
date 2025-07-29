@@ -12,16 +12,22 @@ public:
         shader.use();
         shader.setMatrix4("model", model->m_ModelMatrix);
         glBindVertexArray(model->m_VAO);
-        if (model->m_TextureID != 0)
-        {
+        
+        if (model->m_TextureID != 0) {
             shader.setBool("hasTexture", true);
             glBindTexture(GL_TEXTURE_2D, model->m_TextureID);
-        }
-        else
-        {
+        } else {
             shader.setBool("hasTexture", false);
         }
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(model->m_Vertices.size()));
+
+        // Usar glDrawElements en lugar de glDrawArrays
+        if (model->m_IndexCount > 0) {
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(model->m_IndexCount), GL_UNSIGNED_INT, 0);
+        } else {
+            // Fallback para modelos sin índices
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(model->m_VertexCount));
+        }
+        
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
     }
