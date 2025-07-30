@@ -191,43 +191,38 @@ class ModelManager
 
         }
 
-        // Calcular normales por cara
-        for (size_t i = 0; i < indices.size(); i += 3) {
-            // Obtener los índices del triángulo
-            uint32_t idx1 = indices[i];
-            uint32_t idx2 = indices[i + 1];
-            uint32_t idx3 = indices[i + 2];
-            
-            // Obtener las posiciones de los vértices
-            glm::vec3 v1(vertices[idx1].x, vertices[idx1].y, vertices[idx1].z);
-            glm::vec3 v2(vertices[idx2].x, vertices[idx2].y, vertices[idx2].z);
-            glm::vec3 v3(vertices[idx3].x, vertices[idx3].y, vertices[idx3].z);
-            
-            // Calcular vectores del triángulo
-            glm::vec3 edge1 = v2 - v1;
-            glm::vec3 edge2 = v3 - v1;
-            glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
-            
-            // Acumular (no sobrescribir) las normales
-            accumulatedNormals[idx1] += faceNormal;
-            accumulatedNormals[idx2] += faceNormal;
-            accumulatedNormals[idx3] += faceNormal;
-        }
-
-        // Normalizar las normales acumuladas
-        for (size_t i = 0; i < vertices.size(); ++i) {
-            glm::vec3 avgNormal = glm::normalize(accumulatedNormals[i]);
-            vertices[i].s = avgNormal.x;
-            vertices[i].t = avgNormal.y;
-            vertices[i].w = avgNormal.z;
-        }
-
         fclose(file);
 
 		modelComponent.m_Vertices = std::move(vertices);
 		modelComponent.m_Indices = std::move(indices);
 		modelComponent.m_VertexCount = modelComponent.m_Vertices.size();
 		modelComponent.m_IndexCount = modelComponent.m_Indices.size();
+	}
+
+	static void calculateNormals(TexturedModelComponent& modelComponent) {
+		if (modelComponent.m_Indices.empty() || modelComponent.m_Vertices.empty()) {
+			spdlog::error("Cannot calculate normals: Model has no indices or vertices.");
+			return;
+		}
+		std::vector<glm::vec3> normals(modelComponent.m_VertexCount, glm::vec3(0.0f));
+		for (size_t i = 0; i < modelComponent.m_IndexCount; i += 3) {
+			uint32_t idx1 = modelComponent.m_Indices[i];
+			uint32_t idx2 = modelComponent.m_Indices[i + 1];
+			uint32_t idx3 = modelComponent.m_Indices[i + 2];
+			glm::vec3 v1(modelComponent.m_Vertices[idx1].x, modelComponent.m_Vertices[idx1].y, modelComponent.m_Vertices[idx1].z);
+			glm::vec3 v2(modelComponent.m_Vertices[idx2].x, modelComponent.m_Vertices[idx2].y, modelComponent.m_Vertices[idx2].z);
+			glm::vec3 v3(modelComponent.m_Vertices[idx3].x, modelComponent.m_Vertices[idx3].y, modelComponent.m_Vertices[idx3].z);
+			glm::vec3 normal = glm::normalize(glm::cross(v2 - v1, v3 - v1));
+			normals[idx1] += normal;
+			normals[idx2] += normal;
+			normals[idx3] += normal;
+		}
+		for (size_t i = 0; i < modelComponent.m_VertexCount; ++i) {
+			normals[i] = glm::normalize(normals[i]);
+			modelComponent.m_Vertices[i].s = normals[i].x;
+			modelComponent.m_Vertices[i].t = normals[i].y;
+			modelComponent.m_Vertices[i].w = normals[i].z;
+		}
 	}
 
 };

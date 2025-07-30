@@ -6,7 +6,7 @@
 
 Application::Application()
     :
-    m_Camera{glm::vec3(10.0f, 10.0f, 60.0f)}, m_FirstMouse{true}, m_Dt{0.0f}, m_LastFrame{0.0f}
+    m_Camera{glm::vec3(-2.27f, 0.3f, 4.0f), glm::vec3(0.064f, 0.9923f, -0.1051f), -58.29f, -7.1f}, m_FirstMouse{true}, m_Dt{0.0f}, m_LastFrame{0.0f}
 {
     spdlog::set_level(spdlog::level::debug);
     spdlog::info("Starting application...");
@@ -79,7 +79,7 @@ Application::Application()
 	//ModelManager::loadDataIntoModel(*model, vertices, indices);
 	ModelManager::readOBJfile(*model, "resources/bs_rest.obj");
     //model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(0.1f,0.1f,0.1f));
-	ModelManager::loadModelIntoGPU(*model, false); // Load data into GPU and remove from memory
+	ModelManager::loadModelIntoGPU(*model, true); // Load data into GPU and remove from memory
     
     //spdlog::info("TexturedModelComponent ID: {}", scene.GetComponentId<TexturedModelComponent>());
     // En el inspection *(TexturedModelComponent*)scene.m_ComponentPools[0]->get(0)
@@ -174,7 +174,10 @@ void Application::updateInput()
         m_Camera.ProcessKeyboard(LEFT, m_Dt);
     if (glfwGetKey(m_Window, GLFW_KEY_D) == GLFW_PRESS)
         m_Camera.ProcessKeyboard(RIGHT, m_Dt);
-
+    if (glfwGetKey(m_Window, GLFW_KEY_Q) == GLFW_PRESS) {
+        int a = 0;
+        a++;
+    }
         
 
     /*
