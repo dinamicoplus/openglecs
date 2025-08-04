@@ -17,39 +17,39 @@ Application::Application()
     // Enable Depth testing for Z-Buffer
     glEnable(GL_DEPTH_TEST);
 
-    // Generar vértices correctos para cubo textured
+    // Generar vï¿½rtices correctos para cubo textured
     std::vector<Vertex> vertices = {
-        // Cara frontal (Z = -0.5) - índices 0-3
+        // Cara frontal (Z = -0.5) - ï¿½ndices 0-3
         {-0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,  0.0f, 0.0f, -1.0f}, // 0
         { 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,  0.0f, 0.0f, -1.0f}, // 1
         { 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,  0.0f, 0.0f, -1.0f}, // 2
         {-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,  0.0f, 0.0f, -1.0f}, // 3
 
-        // Cara trasera (Z = +0.5) - índices 4-7
+        // Cara trasera (Z = +0.5) - ï¿½ndices 4-7
         { 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,  0.0f, 0.0f,  1.0f}, // 4
         {-0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,  0.0f, 0.0f,  1.0f}, // 5
         {-0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,  0.0f, 0.0f,  1.0f}, // 6
         { 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,  0.0f, 0.0f,  1.0f}, // 7
 
-        // Cara izquierda (X = -0.5) - índices 8-11
+        // Cara izquierda (X = -0.5) - ï¿½ndices 8-11
         {-0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, -1.0f, 0.0f,  0.0f}, // 8
         {-0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f, -1.0f, 0.0f,  0.0f}, // 9
         {-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f, -1.0f, 0.0f,  0.0f}, // 10
         {-0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f, -1.0f, 0.0f,  0.0f}, // 11
 
-        // Cara derecha (X = +0.5) - índices 12-15
+        // Cara derecha (X = +0.5) - ï¿½ndices 12-15
         { 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,  1.0f, 0.0f,  0.0f}, // 12
         { 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,  1.0f, 0.0f,  0.0f}, // 13
         { 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,  1.0f, 0.0f,  0.0f}, // 14
         { 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,  1.0f, 0.0f,  0.0f}, // 15
 
-        // Cara inferior (Y = -0.5) - índices 16-19
+        // Cara inferior (Y = -0.5) - ï¿½ndices 16-19
         {-0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,  0.0f, -1.0f, 0.0f}, // 16
         { 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,  0.0f, -1.0f, 0.0f}, // 17
         { 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,  0.0f, -1.0f, 0.0f}, // 18
         {-0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,  0.0f, -1.0f, 0.0f}, // 19
 
-        // Cara superior (Y = +0.5) - índices 20-23
+        // Cara superior (Y = +0.5) - ï¿½ndices 20-23
         {-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,  0.0f,  1.0f, 0.0f}, // 20
         { 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,  0.0f,  1.0f, 0.0f}, // 21
         { 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,  0.0f,  1.0f, 0.0f}, // 22
@@ -71,11 +71,10 @@ Application::Application()
 		20, 21, 22,  22, 23, 20 // 20, 21, 22, 23
     };
 
-    scene.RegisterComponentType<TexturedModelComponent>();
-    scene.RegisterComponentType<TransformComponent>();
-    EntityID newEnt = scene.NewEntity();
-    TexturedModelComponent* model = scene.AssignComponent<TexturedModelComponent>(newEnt);
-    TransformComponent* trans = scene.AssignComponent<TransformComponent>(newEnt);
+
+    EntityID newEnt = SceneManager::NewEntity(&scene);
+    TexturedModelComponent* model = SceneManager::AssignComponent<TexturedModelComponent>(&scene, newEnt, TexturedModelComponent{});
+    TransformComponent* trans = SceneManager::AssignComponent<TransformComponent>(&scene, newEnt, TransformComponent{});
     ModelManager::initModel(*model);
 	ModelManager::initModelIntoGPU(*model);
 	//ModelManager::loadDataIntoModel(*model, vertices, indices);
@@ -240,10 +239,10 @@ void Application::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Cachear el ComponentArray una sola vez
-    static ComponentArray<TexturedModelComponent>* TMC = scene.GetComponentArray<TexturedModelComponent>();
-    
-    // Acceso directo a los componentes sin función calls adicionales
-    const auto& models = TMC->GetComponents();
+    static ComponentArray<TexturedModelComponent>* TMC = SceneManager::GetComponentArray<TexturedModelComponent>(&scene);
+
+    // Acceso directo a los componentes sin funciï¿½n calls adicionales
+    const auto& models = ComponentArrayManager::GetComponents<TexturedModelComponent>(TMC);
     for (const auto& model : models)
     {
         RenderSystem::render(&model, m_Shader);

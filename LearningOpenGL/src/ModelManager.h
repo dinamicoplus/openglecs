@@ -1,6 +1,6 @@
 #pragma once
 #include "TexturedModelComponent.h"
-#include "Scene.h"
+//#include "Scene.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
@@ -35,7 +35,7 @@ class ModelManager
 			modelComponent.m_Vertices.data(), 
 			GL_STATIC_DRAW);
 
-		// Cargar índices
+		// Cargar ï¿½ndices
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelComponent.m_EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 			modelComponent.m_Indices.size() * sizeof(uint32_t),
@@ -92,12 +92,12 @@ class ModelManager
 		return vertexVector;
 	}
 
-    // Reemplaza 'String' por 'std::string' en la declaración del método
+    // Reemplaza 'String' por 'std::string' en la declaraciï¿½n del mï¿½todo
     static void readOBJfile(TexturedModelComponent& modelComponent, const char* filename)
 	{
 		FILE* file = fopen(filename, "r");
 		if (!file) {
-            // Reemplaza la línea problemática por esta:
+            // Reemplaza la lï¿½nea problemï¿½tica por esta:
             spdlog::error("Failed to open file: {}", filename);
 			return;
 		}
@@ -105,7 +105,7 @@ class ModelManager
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
     
-        // Vector para acumular normales por vértice
+        // Vector para acumular normales por vï¿½rtice
         std::vector<glm::vec3> accumulatedNormals;
 		unsigned int coordinateCount = 0;
 		unsigned int normalCount = 0;
@@ -115,7 +115,7 @@ class ModelManager
         while (fgets(buffer, sizeof(buffer), file)) {
 			if (buffer[0] == 'v') {
 				if (buffer[1] == ' ') {
-					// Parsear posición del vértice
+					// Parsear posiciï¿½n del vï¿½rtice
 					Vertex vertex;
 					sscanf(buffer, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
 					vertex.r = vertex.g = vertex.b = 1.0f; // Color blanco por defecto
@@ -127,7 +127,7 @@ class ModelManager
 					accumulatedNormals.push_back(glm::vec3(0.0f));
 				}
 				else if (buffer[1] == 'n') {
-					// Parsear normal del vértice
+					// Parsear normal del vï¿½rtice
 					if (normalCount > coordinateCount) {
 						spdlog::error("Error: More normals than vertices in file: {}", filename);
 						fclose(file);
@@ -135,7 +135,7 @@ class ModelManager
 					}
 					glm::vec3 normal;
 					sscanf(buffer, "vn %f %f %f", &normal.x, &normal.y, &normal.z);
-					vertices[normalCount].s = normal.x; // Asignar normal al vértice
+					vertices[normalCount].s = normal.x; // Asignar normal al vï¿½rtice
 					vertices[normalCount].t = normal.y;
 					vertices[normalCount].w = normal.z;
 					normalCount++;
@@ -149,7 +149,7 @@ class ModelManager
 					}
 					float u, v;
 					sscanf(buffer, "vt %f %f", &u, &v);
-					vertices[textureCoordinateCount].u = u; // Asignar coordenadas de textura al vértice
+					vertices[textureCoordinateCount].u = u; // Asignar coordenadas de textura al vï¿½rtice
 					vertices[textureCoordinateCount].v = v;
 					textureCoordinateCount++;
 				}
@@ -158,12 +158,12 @@ class ModelManager
 				
 			
 			else if (buffer[0] == 'f') {
-                // Parsear índices de la cara - soportar múltiples formatos OBJ
+                // Parsear ï¿½ndices de la cara - soportar mï¿½ltiples formatos OBJ
                 uint32_t idx1, idx2, idx3;
-                uint32_t tex1, tex2, tex3;  // índices de textura (no usados pero necesarios para parsing)
-                uint32_t norm1, norm2, norm3; // índices de normales (no usados pero necesarios para parsing)
+                uint32_t tex1, tex2, tex3;  // ï¿½ndices de textura (no usados pero necesarios para parsing)
+                uint32_t norm1, norm2, norm3; // ï¿½ndices de normales (no usados pero necesarios para parsing)
                 
-                // Detectar el formato de la línea 'f'
+                // Detectar el formato de la lï¿½nea 'f'
                 if (strchr(buffer, '/') == nullptr) {
                     // Formato: f v1 v2 v3
                     sscanf(buffer, "f %u %u %u", &idx1, &idx2, &idx3);
@@ -184,7 +184,7 @@ class ModelManager
                     }
                 }
                 
-                indices.push_back(idx1 - 1); // Los índices OBJ son base 1
+                indices.push_back(idx1 - 1); // Los ï¿½ndices OBJ son base 1
                 indices.push_back(idx2 - 1);
                 indices.push_back(idx3 - 1);
             }

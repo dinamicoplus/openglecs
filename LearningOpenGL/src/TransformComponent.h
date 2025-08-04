@@ -1,5 +1,5 @@
 #pragma once
-#include <GLM/glm.hpp>
+#include <glm/glm.hpp>
 
 struct TransformComponent {
     glm::vec3 position{ 0.0f };
