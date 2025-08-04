@@ -72,14 +72,17 @@ Application::Application()
     };
 
     scene.RegisterComponentType<TexturedModelComponent>();
+    scene.RegisterComponentType<TransformComponent>();
     EntityID newEnt = scene.NewEntity();
     TexturedModelComponent* model = scene.AssignComponent<TexturedModelComponent>(newEnt);
+    TransformComponent* trans = scene.AssignComponent<TransformComponent>(newEnt);
     ModelManager::initModel(*model);
 	ModelManager::initModelIntoGPU(*model);
 	//ModelManager::loadDataIntoModel(*model, vertices, indices);
 	ModelManager::readOBJfile(*model, "resources/bs_rest.obj");
     //model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(0.1f,0.1f,0.1f));
 	ModelManager::loadModelIntoGPU(*model, true); // Load data into GPU and remove from memory
+	trans->position = glm::vec3(3.0f, 3.0f, 3.0f);
     
     //spdlog::info("TexturedModelComponent ID: {}", scene.GetComponentId<TexturedModelComponent>());
     // En el inspection *(TexturedModelComponent*)scene.m_ComponentPools[0]->get(0)

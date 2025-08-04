@@ -7,8 +7,10 @@
 #include "Camera.h"
 #include "TextureManager.h"
 #include "TexturedModelComponent.h"
+#include "TransformComponent.h"
 #include "Scene.h"
 #include "ModelManager.h"
+#include "TransformManager.h"
 #include "RenderSystem.h"
 
 #include <GLFW/glfw3.h>
