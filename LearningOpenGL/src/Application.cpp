@@ -242,6 +242,18 @@ void Application::update()
     float currentFrame = static_cast<float>(glfwGetTime());
     m_Dt = currentFrame - m_LastFrame;
     m_LastFrame = currentFrame;
+
+	// Print FPS
+    static int frameCount = 0;
+    static float timeAccumulator = 0.0f;
+    frameCount++;
+    timeAccumulator += m_Dt;
+    if (timeAccumulator >= 1.0f) {
+        float fps = frameCount / timeAccumulator;
+        spdlog::info("FPS: {:.2f}", fps);
+        frameCount = 0;
+        timeAccumulator = 0.0f;
+    }
 }
 
 void Application::render()
@@ -256,7 +268,7 @@ void Application::render()
     const auto& models = ComponentArrayManager::GetComponents<TexturedModelComponent>(TMC);
     for (const auto& model : models)
     {
-        if (model.free) continue; // Skip free components
+        if (!model.component.m_VAO) continue; // Skip free components
         RenderSystem::render(&model.component, m_Shader);
     }
 
