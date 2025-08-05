@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+int toggle = 1;
+
 Application::Application()
     :
     m_Camera{glm::vec3(-2.27f, 0.3f, 4.0f), glm::vec3(0.064f, 0.9923f, -0.1051f), -58.29f, -7.1f}, m_FirstMouse{true}, m_Dt{0.0f}, m_LastFrame{0.0f}
@@ -180,6 +182,13 @@ void Application::updateInput()
         int a = 0;
         a++;
     }
+    if (glfwGetKey(m_Window, GLFW_KEY_R) == GLFW_PRESS) {
+        if(toggle) {
+            SceneManager::DeleteEntity(&scene, scene.m_Entities[0]);
+            spdlog::info("Entity deleted");
+            toggle = 0;
+        }
+    }
         
 
     /*
@@ -245,7 +254,8 @@ void Application::render()
     const auto& models = ComponentArrayManager::GetComponents<TexturedModelComponent>(TMC);
     for (const auto& model : models)
     {
-        RenderSystem::render(&model, m_Shader);
+        if (model.free) continue; // Skip free components
+        RenderSystem::render(&model.component, m_Shader);
     }
 
     //for (auto& cube : m_Cubes)

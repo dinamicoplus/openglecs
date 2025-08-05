@@ -25,7 +25,11 @@ template<typename T>
 class ComponentArray {
 public:
 	std::type_index m_TypeIndex = std::type_index(typeid(T));
-    std::array<T, MAX_ENTITIES> m_Components;
+    typedef struct s_Component {
+        bool free;
+        T component;
+    } Component;
+    std::array<Component, MAX_ENTITIES> m_Components;
     std::unordered_map<size_t, EntityID> m_EntityToIndexMap{};
     std::unordered_map<EntityID, size_t> m_IndexToEntityMap{};
     size_t m_Size = 0;
@@ -64,9 +68,9 @@ public:
         if (it == componentArray->m_IndexToEntityMap.end()) return nullptr;
         
         size_t index = it->second;
-        componentArray->m_Components[index] = std::move(component); // Asignar directamente al array
+        componentArray->m_Components[index].component = std::move(component); // Asignar directamente al array
         
-        return &componentArray->m_Components[index]; // Devolver puntero al componente almacenado
+        return &componentArray->m_Components[index].component; // Devolver puntero al componente almacenado
     }
 
     template<typename T>
@@ -80,7 +84,7 @@ public:
     }
 
     template<typename T>
-    static std::array<T, MAX_ENTITIES>& GetComponents(ComponentArray<T>* componentArray) {
+    static std::array<typename ComponentArray<T>::Component, MAX_ENTITIES>& GetComponents(ComponentArray<T>* componentArray) {
         return componentArray->m_Components;
     }
 
@@ -106,6 +110,7 @@ public:
         // Eliminar las entradas de los mapas
         componentArray->m_IndexToEntityMap.erase(entity);
         componentArray->m_EntityToIndexMap.erase(indexOfLastElement);
+        componentArray->m_Components[indexOfLastElement].component = T{}; // Limpiar el componente del �ltimo elemento
         componentArray->m_Size--;
     }
 };
