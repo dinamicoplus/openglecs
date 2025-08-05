@@ -80,8 +80,10 @@ Application::Application()
     ModelManager::initModel(*model);
 	ModelManager::initModelIntoGPU(*model);
 	//ModelManager::loadDataIntoModel(*model, vertices, indices);
-	ModelManager::readOBJfile(*model, "resources/bs_rest.obj");
-    //model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(0.1f,0.1f,0.1f));
+	//ModelManager::readOBJfile(*model, "resources/alarm_clock_01_4k.obj");
+	//ModelManager::saveMBFFile(*model, "resources/alarm_clock_01_4k.mbf");
+	ModelManager::loadMBFFile(*model, "resources/alarm_clock_01_4k.mbf");
+    model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(3.1f,3.1f,3.1f));
 	ModelManager::loadModelIntoGPU(*model, true); // Load data into GPU and remove from memory
 	trans->position = glm::vec3(3.0f, 3.0f, 3.0f);
     
@@ -90,10 +92,10 @@ Application::Application()
 
     // Shaders
     m_Shader.create("shaders/vertex.glsl", "shaders/fragment.glsl");
-    m_Shader.use();
+    m_Shader.use(); 
     
     // Textures
-    unsigned int containerTexture = TextureManager::create("resources/diffuse.png");
+    unsigned int containerTexture = TextureManager::create("resources/textures/alarm_clock_01_diff_4k.jpg");
     //unsigned int wallTexture = TextureManager::create("resources/wall.jpg");
 
     model->m_TextureID = TextureManager::get(containerTexture);
