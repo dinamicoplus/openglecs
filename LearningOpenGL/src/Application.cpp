@@ -226,12 +226,12 @@ void Application::update()
     m_Shader.setMatrix4("view", m_View);
 
     //spdlog::info("Camera position: x={0:.4f}, y={0:.4f}, z={0:.4f}", (float)m_Camera.m_Position.x, (float)m_Camera.m_Position.y, (float)m_Camera.m_Position.z);
-    lightPos.x = sin(glfwGetTime()) * radius + 5.0f;
-    lightPos.y = cos(glfwGetTime()) * radius + 5.0f;
+    lightPos.x = (float) sin(glfwGetTime()) * radius + 5.0f;
+    lightPos.y = (float) cos(glfwGetTime()) * radius + 5.0f;
 
-    lightColor.r = sin(glfwGetTime());
-    lightColor.g = sin(10 / 11 * glfwGetTime() + 3.141592f / 3.0f);
-    lightColor.b = sin(5 / 6 * glfwGetTime() + 3.141592f * 2.0f / 3.0f);
+    lightColor.r = (float) sin(glfwGetTime());
+    lightColor.g = (float) sin(10 / 11 * glfwGetTime() + 3.141592f / 3.0f);
+    lightColor.b = (float) sin(5 / 6 * glfwGetTime() + 3.141592f * 2.0f / 3.0f);
 
     lightcube.setPosition(lightPos);
     m_Shader.setVec3("lightPos", lightPos);

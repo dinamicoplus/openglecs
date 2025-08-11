@@ -95,7 +95,8 @@ class ModelManager
 
     static void readOBJfile(TexturedModelComponent& modelComponent, const char* filename)
 	{
-		FILE* file = fopen(filename, "r");
+		FILE* file;
+		fopen_s(&file, filename, "r");
 		if (!file) {
             // Reemplaza la l�nea problem�tica por esta:
             spdlog::error("Failed to open file: {}", filename);
@@ -135,20 +136,20 @@ class ModelManager
 			if (buffer[0] == 'v') {
 				if (buffer[1] == ' ') {
 					glm::vec3 vertex;
-					sscanf(buffer, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
+					sscanf_s(buffer, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
 					verticesPosition.push_back({ vertex.x, vertex.y, vertex.z });
 					coordinateCount++;
 				}
 				else if (buffer[1] == 'n') {
 					glm::vec3 normal;
-					sscanf(buffer, "vn %f %f %f", &normal.x, &normal.y, &normal.z);
+					sscanf_s(buffer, "vn %f %f %f", &normal.x, &normal.y, &normal.z);
 					verticesNormals.push_back(normal);
 					normalCount++;
 				}
 				else if (buffer[1] == 't') {
 					// Parsear coordenadas de textura
 					glm::vec2 tex;
-					sscanf(buffer, "vt %f %f", &tex.x, &tex.y);
+					sscanf_s(buffer, "vt %f %f", &tex.x, &tex.y);
 					verticesTexture.push_back(tex);
 					textureCoordinateCount++;
 				}
@@ -157,16 +158,16 @@ class ModelManager
 				
 			
 			else if (buffer[0] == 'f') {
-                // Parsear �ndices de la cara - soportar m�ltiples formatos OBJ
+                // Parsear índices de la cara - soportar múltiples formatos OBJ
                 uint32_t idx1, idx2, idx3;
                 uint32_t tex1, tex2, tex3;  
                 uint32_t norm1, norm2, norm3; 
 
                 
-                // Detectar el formato de la l�nea 'f'
+                // Detectar el formato de la línea 'f'
                 if (strchr(buffer, '/') == nullptr) {
                     // Formato: f v1 v2 v3
-                    sscanf(buffer, "f %u %u %u", &idx1, &idx2, &idx3);
+                    sscanf_s(buffer, "f %u %u %u", &idx1, &idx2, &idx3);
                 } else {
                     // Contar las barras para determinar el formato
                     int slashCount = 0;
@@ -176,10 +177,10 @@ class ModelManager
                     
                     if (slashCount == 3) {
                         // Formato: f v1/vt1 v2/vt2 v3/vt3
-                        sscanf(buffer, "f %u/%u %u/%u %u/%u", &idx1, &tex1, &idx2, &tex2, &idx3, &tex3);
+                        sscanf_s(buffer, "f %u/%u %u/%u %u/%u", &idx1, &tex1, &idx2, &tex2, &idx3, &tex3);
                     } else if (slashCount == 6) { 
                         // Formato: f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
-                        sscanf(buffer, "f %u/%u/%u %u/%u/%u %u/%u/%u", 
+                        sscanf_s(buffer, "f %u/%u/%u %u/%u/%u %u/%u/%u", 
                                &idx1, &tex1, &norm1, &idx2, &tex2, &norm2, &idx3, &tex3, &norm3);
                     }
                 }
@@ -264,7 +265,8 @@ class ModelManager
 	}
 
 	static void saveMBFFile(const TexturedModelComponent& modelComponent, const char* filename) {
-		FILE* file = fopen(filename, "wb");
+		FILE* file;
+		fopen_s(&file, filename, "wb");
 		if (!file) {
 			spdlog::error("Failed to open file for writing: {}", filename);
 			return;
@@ -280,7 +282,8 @@ class ModelManager
 	}
 
 	static void loadMBFFile(TexturedModelComponent& modelComponent, const char* filename) {
-		FILE* file = fopen(filename, "rb");
+		FILE* file;
+		fopen_s(&file, filename, "rb");
 		if (!file) {
 			spdlog::error("Failed to open MBF file: {}", filename);
 			return;
