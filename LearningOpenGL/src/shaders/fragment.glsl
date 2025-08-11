@@ -15,19 +15,30 @@ uniform vec3 viewPos;
 
 void main()
 {
-    float ambientStrength = 0.8;
+    // Componente ambiente
+    float ambientStrength = 0.1;
     vec3 ambient = ambientColor * ambientStrength;
 
+    // Componente difuso
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0f);
-    vec3 diffuse = diff * Color * ambientColor;
+    float diff = max(dot(norm, lightDir), 0.0);
+    
+    vec3 diffuseColor;
+    diffuseColor = texture(Texture, TexCoord).rgb;
+    vec3 diffuse = diff * diffuseColor;
 
-    if(hasTexture) {
-        vec4 result = texture(Texture,TexCoord) * vec4(ambient + diffuse, 1.0f);
-        FragColor = result;
+    // Componente especular
+    float specularStrength = 0.4;
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * vec3(1.0); // Luz blanca especular
+
+    // Resultado final
+    vec3 result = ambient + diffuse + specular;
+    if(!hasTexture) {
+        result = Color; 
     }
-    else {
-        FragColor = vec4(Color, 1.0f);
-    }
+    FragColor = vec4(result, 1.0);
 }
