@@ -82,6 +82,7 @@ Application::Application()
 	//ModelManager::loadDataIntoModel(*model, vertices, indices);
 	//ModelManager::readOBJfile(*model, "resources/alarm_clock_01_4k.obj");
 	//ModelManager::saveMBFFile(*model, "resources/alarm_clock_01_4k.mbf");
+    //ModelManager::readOBJfile(*model, "resources/bs_rest.obj");
 	ModelManager::loadMBFFile(*model, "resources/alarm_clock_01_4k.mbf");
     model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(3.1f,3.1f,3.1f));
 	ModelManager::loadModelIntoGPU(*model, true); // Load data into GPU and remove from memory
@@ -94,7 +95,8 @@ Application::Application()
     m_Shader.create("shaders/vertex.glsl", "shaders/fragment.glsl");
     m_Shader.use(); 
     
-    // Textures
+    // Textures 
+    //unsigned int containerTexture = TextureManager::create("resources/diffuse.png");
     unsigned int containerTexture = TextureManager::create("resources/textures/alarm_clock_01_diff_4k.jpg");
     //unsigned int wallTexture = TextureManager::create("resources/wall.jpg");
 
@@ -185,7 +187,7 @@ void Application::updateInput()
         a++;
     }
     if (glfwGetKey(m_Window, GLFW_KEY_R) == GLFW_PRESS) {
-        if(toggle) {
+        if(toggle) { 
             SceneManager::DeleteEntity(&scene, scene.m_Entities[0]);
             spdlog::info("Entity deleted");
             toggle = 0;

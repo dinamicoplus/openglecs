@@ -6,8 +6,10 @@
 #include <memory>
 #include <typeindex>
 #include <bitset>
+#include <functional>
 #include "TransformComponent.h"
 #include "TexturedModelComponent.h"
+#include "ModelManager.h"
 
 typedef unsigned long long EntityID;
 const int MAX_COMPONENTS = 32;
@@ -119,7 +121,7 @@ class SceneManager {
 public: // Cambiar a public para facilitar el uso
     static EntityID NewEntity(Scene* scene) {
         if (scene->entityIdx >= MAX_ENTITIES) return static_cast<EntityID>(-1); // Verificaci�n de l�mite
-        
+
         EntityID newEntity = scene->entityIdx; // Simplificar: usar directamente el �ndice como EntityID
         scene->m_Entities[newEntity] = newEntity;
         ComponentMask emptyMask; // Crear m�scara vac�a
@@ -142,23 +144,23 @@ public: // Cambiar a public para facilitar el uso
     template<typename T>
     static T* AssignComponent(Scene* scene, EntityID entity, T component) {
         if (entity >= MAX_ENTITIES) return nullptr; // Verificaci�n de l�mite
-        
+
         // Obtener componente array
         ComponentArray<T>* array = GetComponentArray<T>(scene);
         if (!array) return nullptr;
-        
+
         // Guardar m�scara anterior para actualizar el mapa
         ComponentMask oldMask = scene->m_EntityMasks[entity];
-        
+
         // Asignar componente
         T* result = ComponentArrayManager::AddComponentToEntity<T>(array, entity, std::move(component));
-        
+
         // Actualizar m�scara y mapa de componentes
         size_t componentTypeID = ComponentType.at(std::type_index(typeid(T)));
         scene->m_ComponentMaskToIdxMap[oldMask].erase(entity); // Quitar entidad de la m�scara anterior
         scene->m_EntityMasks[entity].set(componentTypeID); // Actualizar m�scara
         scene->m_ComponentMaskToIdxMap[scene->m_EntityMasks[entity]].insert(entity); // Agregar a nueva m�scara
-        
+
         return result;
     }
 
@@ -170,26 +172,26 @@ public: // Cambiar a public para facilitar el uso
     template<typename T>
     static T* GetComponent(Scene* scene, EntityID entity) {
         if (entity >= MAX_ENTITIES) return nullptr; // Verificaci�n de l�mite
-        
+
         ComponentArray<T>* array = GetComponentArray<T>(scene);
         if (!array) return nullptr;
-        
+
         return ComponentArrayManager::GetComponent<T>(array, entity);
     }
 
     template<typename T>
     static void RemoveComponent(Scene* scene, EntityID entity) {
         if (entity >= MAX_ENTITIES) return; // Verificaci�n de l�mite
-        
+
         ComponentArray<T>* array = GetComponentArray<T>(scene);
         if (!array) return;
-        
+
         // Guardar m�scara anterior
         ComponentMask oldMask = scene->m_EntityMasks[entity];
-        
+
         // Remover componente
         ComponentArrayManager::RemoveComponent<T>(array, entity);
-        
+
         // Actualizar m�scara y mapa
         size_t componentTypeID = ComponentType.at(std::type_index(typeid(T)));
         scene->m_ComponentMaskToIdxMap[oldMask].erase(entity);
@@ -210,40 +212,40 @@ public: // Cambiar a public para facilitar el uso
 
     static void DeleteEntity(Scene* scene, EntityID entity) {
         if (entity >= MAX_ENTITIES || entity >= scene->entityIdx) return;
-        
+
         // Eliminar de la colecci�n por m�scara
         scene->m_ComponentMaskToIdxMap[scene->m_EntityMasks[entity]].erase(entity);
-        
+
         // Eliminar componentes
         ClearAllEntityComponents(scene, entity);
-        
+
         // Si no es la �ltima entidad, mover la �ltima a su posici�n
         EntityID lastEntity = scene->entityIdx - 1;
         if (entity != lastEntity) {
             scene->m_Entities[entity] = scene->m_Entities[lastEntity];
             scene->m_EntityMasks[entity] = scene->m_EntityMasks[lastEntity];
-            
+
             // Actualizar mapa de m�scaras para la entidad movida
             scene->m_ComponentMaskToIdxMap[scene->m_EntityMasks[entity]].erase(lastEntity);
             scene->m_ComponentMaskToIdxMap[scene->m_EntityMasks[entity]].insert(entity);
         }
-        
+
         // Limpiar �ltima posici�n
         scene->m_Entities[lastEntity] = static_cast<EntityID>(-1);
         scene->m_EntityMasks[lastEntity].reset();
         scene->entityIdx--;
     }
 
-	template<typename T>
+    template<typename T>
     static ComponentArray<T> *GetComponentArrayByType(Scene* scene) {
-		std::type_index typeIndex = std::type_index(typeid(T));
+        std::type_index typeIndex = std::type_index(typeid(T));
         if (typeIndex == std::type_index(typeid(TransformComponent))) {
             return &scene->TransformComponentArray;
         } else if (typeIndex == std::type_index(typeid(TexturedModelComponent))) {
             return &scene->TexturedModelComponentArray;
         }
         return nullptr; // A�adir caso por defecto
-	}
+    }
 
 
     template<typename T>
@@ -265,5 +267,45 @@ public: // Cambiar a public para facilitar el uso
         }
 
         return result;
+    }
+
+    static unsigned int addTexturedModelEntity(Scene& scene,
+          const TransformComponent& traComp = TransformComponent{},
+          const TexturedModelComponent& TMComp = TexturedModelComponent{},
+          std::function<void(TexturedModelComponent&)> TMCallback = nullptr) {
+            if (!TMCallback) {
+                return -1;
+            }
+            EntityID newEnt = SceneManager::NewEntity(&scene);
+            TexturedModelComponent* model = SceneManager::AssignComponent<TexturedModelComponent>(&scene, newEnt, TMComp);
+            TransformComponent* trans = SceneManager::AssignComponent<TransformComponent>(&scene, newEnt, traComp);
+            ModelManager::initModel(*model);
+            ModelManager::initModelIntoGPU(*model);
+            TMCallback(*model);
+
+            return 0; // Ok
+        }
+
+    static void addTexturedModelEntityFromFile(Scene& scene, const char* filename, const TransformComponent& traComp = TransformComponent{}) {
+            
+        std::function<void (TexturedModelComponent &)> objLoader;
+        std::string fname(filename);
+
+        // Comprobar extensión .obj
+        if (fname.size() < 4 || fname.substr(fname.size() - 4) != ".obj") {
+            objLoader = [filename](TexturedModelComponent& model) {
+                ModelManager::readOBJfile(model, filename);
+                };
+        }
+
+        // Comprobar extensión .mbf
+        if (fname.size() < 4 || fname.substr(fname.size() - 4) != ".mbf") {
+            objLoader = [filename](TexturedModelComponent& model) {
+                ModelManager::loadMBFFile(model, filename);
+                };
+        }
+
+        addTexturedModelEntity(scene, traComp, TexturedModelComponent{}, objLoader);
+        return;
     }
 };
