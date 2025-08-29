@@ -86,7 +86,7 @@ Application::Application()
 	ModelManager::loadMBFFile(*model, "resources/alarm_clock_01_4k.mbf");
     model->m_ModelMatrix = glm::scale(model->m_ModelMatrix, glm::vec3(3.1f,3.1f,3.1f));
 	ModelManager::loadModelIntoGPU(*model, true); // Load data into GPU and remove from memory
-	trans->position = glm::vec3(3.0f, 3.0f, 3.0f);
+	trans->position = glm::vec3(3.0f, 3.0f, 3.0f); 
     
     //spdlog::info("TexturedModelComponent ID: {}", scene.GetComponentId<TexturedModelComponent>());
     // En el inspection *(TexturedModelComponent*)scene.m_ComponentPools[0]->get(0)
@@ -95,7 +95,7 @@ Application::Application()
     m_Shader.create("shaders/vertex.glsl", "shaders/fragment.glsl");
     m_Shader.use(); 
     
-    // Textures 
+    // Textures  
     //unsigned int containerTexture = TextureManager::create("resources/diffuse.png");
     unsigned int containerTexture = TextureManager::create("resources/textures/alarm_clock_01_diff_4k.jpg");
     //unsigned int wallTexture = TextureManager::create("resources/wall.jpg");
